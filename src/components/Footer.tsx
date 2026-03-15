@@ -31,6 +31,7 @@ function NewsletterForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Email address"
                 required
+                aria-label="Email address for newsletter subscription"
                 className="flex h-9 w-full rounded-md border border-primary/20 bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
             />
             <button type="submit" className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow transition-colors hover:bg-primary-light shrink-0">
@@ -66,6 +67,7 @@ export default function Footer() {
                             <li><Link href="/donate" className="hover:text-secondary dark:hover:text-secondary-light flex items-center"><Heart className="w-4 h-4 mr-1" /> Donate</Link></li>
                             <li><Link href="/dashboard" className="hover:text-primary dark:hover:text-primary-light">My Dashboard</Link></li>
                             <li><Link href="/calendar" className="hover:text-primary dark:hover:text-primary-light">Islamic Calendar</Link></li>
+                            <li><Link href="/contact" className="hover:text-primary dark:hover:text-primary-light">Contact</Link></li>
                         </ul>
                     </div>
                     <div>
@@ -79,6 +81,8 @@ export default function Footer() {
                         © {new Date().getFullYear()} Islamic Daily Reminder. All rights reserved.
                     </p>
                     <div className="flex space-x-4 text-sm opacity-60">
+                        <Link href="/about" className="hover:text-primary dark:hover:text-primary-light">About</Link>
+                        <Link href="/privacy" className="hover:text-primary dark:hover:text-primary-light">Privacy Policy</Link>
                         <Link href="/donate" className="hover:text-primary dark:hover:text-primary-light">Donate</Link>
                         <Link href="/dashboard" className="hover:text-primary dark:hover:text-primary-light">Dashboard</Link>
                     </div>

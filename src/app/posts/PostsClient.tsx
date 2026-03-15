@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Video, RefreshCw, Search, Filter } from "lucide-react";
+import { FileText, Video, RefreshCw, Search } from "lucide-react";
+import Image from "next/image";
 
 interface Post {
     _id: string;
@@ -43,20 +44,22 @@ function getYouTubeEmbedUrl(url: string): string | null {
 
 function PostCard({ post }: { post: Post }) {
     const [expanded, setExpanded] = useState(false);
+    const [imageError, setImageError] = useState(false);
     const isLong = post.content.length > 300;
     const embedUrl = post.type === "video" && post.videoUrl ? getYouTubeEmbedUrl(post.videoUrl) : null;
 
     return (
         <div className="bg-white dark:bg-neutral-dark rounded-2xl border border-primary/10 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
             {/* Thumbnail for text posts */}
-            {post.type === "post" && post.thumbnail && (
-                <div className="aspect-video w-full overflow-hidden bg-primary/5">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+            {post.type === "post" && post.thumbnail && !imageError && (
+                <div className="relative aspect-video w-full overflow-hidden bg-primary/5">
+                    <Image
                         src={post.thumbnail}
                         alt={post.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                        fill
+                        sizes="(min-width: 768px) 50vw, 100vw"
+                        className="object-cover"
+                        onError={() => setImageError(true)}
                     />
                 </div>
             )}
@@ -69,6 +72,7 @@ function PostCard({ post }: { post: Post }) {
                             src={embedUrl}
                             title={post.title}
                             className="w-full h-full"
+                            loading="lazy"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
                         />
@@ -76,6 +80,7 @@ function PostCard({ post }: { post: Post }) {
                         <video
                             src={post.videoUrl}
                             controls
+                            preload="metadata"
                             className="w-full h-full"
                             poster={post.thumbnail || undefined}
                         />

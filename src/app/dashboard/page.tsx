@@ -3,21 +3,13 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Bookmark as BookmarkIcon, Trash2, ArrowRight, User, Compass, BookOpen, Wrench, RefreshCw } from "lucide-react";
 import { getBookmarks, toggleBookmark, Bookmark } from "@/lib/bookmarks";
 
 export default function DashboardPage() {
     const { data: session, status } = useSession();
-    const router = useRouter();
     const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
     const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        if (status === "unauthenticated") {
-            router.push("/login");
-        }
-    }, [status, router]);
 
     useEffect(() => {
         setBookmarks(getBookmarks());
@@ -40,6 +32,33 @@ export default function DashboardPage() {
         return (
             <div className="flex-grow flex items-center justify-center">
                 <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    if (status === "unauthenticated") {
+        return (
+            <div className="flex-grow flex items-center justify-center bg-neutral-light/30 dark:bg-black/10 px-4 py-12">
+                <div className="w-full max-w-xl rounded-2xl border border-primary/15 bg-white dark:bg-neutral-dark p-8 text-center shadow-sm">
+                    <h1 className="text-3xl font-bold text-primary dark:text-primary-light">Login Required</h1>
+                    <p className="mt-3 text-neutral-dark/80 dark:text-neutral-light/80">
+                        Please sign in to view your dashboard, bookmarks, and personalized quick links.
+                    </p>
+                    <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                        <Link
+                            href="/login?callbackUrl=/dashboard"
+                            className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-5 text-sm font-medium text-white hover:bg-primary-light"
+                        >
+                            Sign In
+                        </Link>
+                        <Link
+                            href="/register"
+                            className="inline-flex h-10 items-center justify-center rounded-md border border-primary/20 px-5 text-sm font-medium hover:bg-primary/5"
+                        >
+                            Create Account
+                        </Link>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -141,6 +160,7 @@ export default function DashboardPage() {
                                                 }}
                                                 className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
                                                 title="Remove Bookmark"
+                                                aria-label={`Remove bookmark for ${item.title}`}
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
