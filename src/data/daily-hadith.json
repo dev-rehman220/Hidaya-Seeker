@@ -1,422 +1,62 @@
-﻿[
-    {
-        "id":  1,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 1)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 1",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  2,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 2)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 2",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  3,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 3)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 3",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  4,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 4)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 4",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  5,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 5)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 5",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  6,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 6)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 6",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  7,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 7)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 7",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  8,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 8)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 8",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  9,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 9)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 9",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  10,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 10)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 10",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  11,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 11)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 11",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  12,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 12)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 12",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  13,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 13)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 13",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  14,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 14)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 14",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  15,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 15)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 15",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  16,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 16)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 16",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  17,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 17)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 17",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  18,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 18)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 18",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  19,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 19)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 19",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  20,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 20)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 20",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  21,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 21)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 21",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  22,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 22)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 22",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  23,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 23)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 23",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  24,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 24)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 24",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  25,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 25)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 25",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  26,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 26)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 26",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  27,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 27)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 27",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  28,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 28)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 28",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  29,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 29)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 29",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  30,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 30)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 30",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  31,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 31)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 31",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  32,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 32)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 32",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  33,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 33)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 33",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  34,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 34)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 34",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  35,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 35)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 35",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  36,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 36)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 36",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  37,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 37)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 37",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  38,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 38)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 38",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  39,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 39)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 39",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  40,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 40)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 40",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  41,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 41)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 41",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  42,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 42)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 42",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  43,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 43)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 43",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  44,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 44)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 44",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  45,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 45)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 45",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  46,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 46)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 46",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  47,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 47)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 47",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  48,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 48)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 48",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  49,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 49)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 49",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  50,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 50)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 50",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  51,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 51)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 51",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  52,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 52)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 52",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  53,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 53)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 53",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  54,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 54)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 54",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  55,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 55)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 55",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  56,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 56)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 56",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  57,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 57)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 57",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  58,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 58)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 58",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  59,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 59)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 59",
-        "subtitle":  "Book of Revelation"
-    },
-    {
-        "id":  60,
-        "arabic":  "Innamal amalu bin niyyat",
-        "english":  "Actions are judged by intentions. (Daily Hadith 60)",
-        "reference":  "Sahih al-Bukhari 1 - Entry 60",
-        "subtitle":  "Book of Revelation"
-    }
+[
+  { "id": 1, "arabic": "???? ??????? ??????? ????? ??? ???? ?? ???", "english": "Actions are judged by intentions, and everyone will get what they intended", "reference": "Sahih al-Bukhari 1", "subtitle": "On Intentions" },
+  { "id": 2, "arabic": "????? ???????", "english": "Religion is sincere advice to Allah, His Messenger, and Muslims", "reference": "Sahih Muslim 55", "subtitle": "On Religion" },
+  { "id": 3, "arabic": "?? ??? ??? ???? ???? ??? ???? ??? ?? ???? ???? ?? ??? ???", "english": "Whoever establishes a good practice, and people act upon it, will have their reward and the reward of those who act upon it", "reference": "Sunan Ibn Majah 209", "subtitle": "On Good Practices" },
+  { "id": 4, "arabic": "???????? ?????? ?????? ???? ?? ?? ????? ????? ?? ?? ??????", "english": "The merciful will be shown mercy by the Most Merciful. Be merciful to those on earth", "reference": "Tirmidhi 1924", "subtitle": "On Mercy" },
+  { "id": 5, "arabic": "?? ???? ????? ??? ??? ????? ?? ??? ?????", "english": "None of you believes until he loves for his brother what he loves for himself", "reference": "Sahih al-Bukhari 13", "subtitle": "On Brotherhood" },
+  { "id": 6, "arabic": "?? ?? ???? ????? ?? ???? ????", "english": "Whoever does not thank people has not thanked Allah", "reference": "Tirmidhi 1954", "subtitle": "On Gratitude" },
+  { "id": 7, "arabic": "?????? ?????? ????", "english": "A kind word is an act of charity", "reference": "Sahih al-Bukhari 2989", "subtitle": "On Kind Speech" },
+  { "id": 8, "arabic": "????? ????? ????? ???? ????? ?????", "english": "The best among you are those who are best to their families, and I am the best to my family", "reference": "Tirmidhi 3895", "subtitle": "On Family" },
+  { "id": 9, "arabic": "??? ???? ????? ??? ????? ?????? ?????? ?????", "english": "Fear Allah wherever you are, and follow a bad deed with a good one to erase it", "reference": "Tirmidhi 1987", "subtitle": "On Piety" },
+  { "id": 10, "arabic": "?? ??? ??? ?????? ?? ??? ???? ???? ?? ????? ?? ?????", "english": "Whoever goes to the mosque in the morning or evening, Allah prepares for him a place in Paradise", "reference": "Sahih al-Bukhari 662", "subtitle": "On Mosques" },
+  { "id": 11, "arabic": "??? ???? ???? ??? ?? ????? ???? ????? ?????? ??? ??? ??? ?? ????? ?????", "english": "May Allah have mercy on a man who wakes up at night to pray and awakens his wife", "reference": "Sunan Abu Dawud 1468", "subtitle": "On Night Prayer" },
+  { "id": 12, "arabic": "???? ????", "english": "Hajj is Arafat (standing at Mount Arafat)", "reference": "Sunan Ibn Majah 3015", "subtitle": "On Hajj" },
+  { "id": 13, "arabic": "?? ???? ??? ??? ??? ????? ???? ?? ?????", "english": "Allah loves that when any of you does something, he does it with excellence", "reference": "Sunan Ibn Majah 2292", "subtitle": "On Excellence" },
+  { "id": 14, "arabic": "?????? ??? ?????? ?? ????? ??? ????? ??? ?????", "english": "A Muslim is the brother of another Muslim: he does not oppress him nor does he abandon him", "reference": "Sahih Muslim 2580", "subtitle": "On Brotherhood" },
+  { "id": 15, "arabic": "????? ??? ??? ????? ??? ???? ???? ???? ?? ??? ??? ????", "english": "While we were sitting with the Prophet, a man came running", "reference": "Sahih al-Bukhari 4481", "subtitle": "On Respect" },
+  { "id": 16, "arabic": "?? ??? ???? ??? ????? ??? ???? ????? ??? ????? ?????", "english": "Whoever severs the ties of kinship will not enter Paradise", "reference": "Sunan Ibn Majah 3755", "subtitle": "On Kinship" },
+  { "id": 17, "arabic": "???? ?????? ?? ???? ??? ??? ????? ??? ????", "english": "The best charity is when given despite need, and begin with those you support", "reference": "Sunan Ibn Majah 1843", "subtitle": "On Charity" },
+  { "id": 18, "arabic": "???? ????? ????? ???? ??????? ??? ???? ???? ?????", "english": "Peace be upon you and the mercy and blessings of Allah - this is Allah's greeting", "reference": "Sunan Abu Dawud 5197", "subtitle": "On Greetings" },
+  { "id": 19, "arabic": "?? ??? ????? ?????? ????? ?????? ????", "english": "Whoever believes in Allah and the Last Day should honor his guest", "reference": "Sahih al-Bukhari 5186", "subtitle": "On Hospitality" },
+  { "id": 20, "arabic": "?????? ?? ???? ??????? ?????? ?? ?????", "english": "A fasting pilgrim is like a slaughtered animal in the Haram", "reference": "Sunan Abu Dawud 1803", "subtitle": "On Fasting During Hajj" },
+  { "id": 21, "arabic": "?? ?????? ????? ??? ??? ?????? ???? ??? ?????? ???? ??? ?????? ?????", "english": "A person's faith is not complete until their heart is sound, and their heart cannot be sound until their tongue is sound", "reference": "Musnad Ahmad 8948", "subtitle": "On The Heart and Tongue" },
+  { "id": 22, "arabic": "?? ??? ????? ???? ???? ??? ???????", "english": "Whoever conceals the fault of a Muslim, Allah will conceal his faults on the Day of Judgment", "reference": "Sahih Muslim 2580", "subtitle": "On Concealing Faults" },
+  { "id": 23, "arabic": "??? ???? ??? ????? ???? ??? ??? ??? ??????", "english": "When I am ill, He cures me, and when I am hungry, He feeds me", "reference": "Sahih al-Bukhari 5648", "subtitle": "On Allah's Care" },
+  { "id": 24, "arabic": "?? ??? ???? ?? ???? ??? ???", "english": "Whoever Allah wants good for, He tests them", "reference": "Sahih al-Bukhari 5645", "subtitle": "On Tests" },
+  { "id": 25, "arabic": "?? ?? ???? ???? ????? ??? ?????? ?? ?? ???????? ?? ??? ????? ????? ?????? ????", "english": "No Muslim dies such that the Muslim standover his funeral prayer being at least three rows", "reference": "Sunan Ibn Majah 1504", "subtitle": "On Funeral Prayers" },
+  { "id": 26, "arabic": "?????? ???? ?? ??????? ???????? ???? ?? ??????", "english": "Modesty is a part of faith, and vain glory is a part of hypocrisy", "reference": "Tirmidhi 2009", "subtitle": "On Modesty" },
+  { "id": 27, "arabic": "?? ???? ???? ???????", "english": "Whoever changes his faith, execute him", "reference": "Sahih al-Bukhari 6922", "subtitle": "On Apostasy" },
+  { "id": 28, "arabic": "??????? ??? ?????? ???? ?????? ?? ??? ??? ???? ??????? ????? ????? ?? ??????", "english": "Faith has more than seventy branches, the highest is 'La ilaha illallah' and the lowest is removing harm from the path", "reference": "Sahih Muslim 35", "subtitle": "On Faith" },
+  { "id": 29, "arabic": "????? ??? ????? ??????? ??? ??????", "english": "Know your neighbor before you buy a house, and know your companion before you start the journey", "reference": "Attributed to Ali", "subtitle": "On Relationships" },
+  { "id": 30, "arabic": "?? ??????? ??? ?? ?????? ??? ??? ?? ????", "english": "Return the trust to one who entrusted you, and do not betray one who betrayed you", "reference": "Sunan Abu Dawud 3535", "subtitle": "On Trusts" },
+  { "id": 31, "arabic": "????? ?????? ??? ????", "english": "Avoid prostration on seven parts", "reference": "Sahih Muslim 490", "subtitle": "On Prayer" },
+  { "id": 32, "arabic": "?? ??? ??? ???? ???? ???? ????? ??? ????? ???? ????", "english": "Whoever says in the morning and evening: O Allah, I submit myself to You", "reference": "Sahih Muslim 2722", "subtitle": "On Remembrance" },
+  { "id": 33, "arabic": "?? ???? ?? ???? ??? ??????? ??? ??? ????? ???? ???? ??? ??????", "english": "Allah does not look at your bodies or forms, but looks at your hearts", "reference": "Sahih Muslim 2564", "subtitle": "On Hearts" },
+  { "id": 34, "arabic": "????? ?????? ??????? ?? ?????? ?????? ?????? ?????? ??????", "english": "Lineage, color, and beauty are not inherited, but intellect, knowledge, and manners are", "reference": "Al-Adab al-Mufrad 287", "subtitle": "On Inheritance" },
+  { "id": 35, "arabic": "?? ???? ??? ??? ??? ?????", "english": "Whoever learns the language of a people is safe from their deception", "reference": "Sunan Abu Dawud 2743", "subtitle": "On Languages" },
+  { "id": 36, "arabic": "?? ?? ???? ????? ???? ??? ??? ??? ?? ??? ????", "english": "Say: I have not control over any benefit or harm for myself except as Allah wills", "reference": "Reference from Quran" },
+  { "id": 37, "arabic": "?? ?????? ??? ????? ?? ???????", "english": "Do not become angry, for anger is from the devil", "reference": "Sunan Abu Dawud 4784", "subtitle": "On Anger" },
+  { "id": 38, "arabic": "??? ????? ?????? ?????? ?????? ??????? ???????", "english": "Believe in neighbors by neighbors, and homes by homes, and companions by companions", "reference": "Al-Adab al-Mufrad 155", "subtitle": "On Community" },
+  { "id": 39, "arabic": "?? ??? ???? ?? ???? ???? ????? ????", "english": "Whoever isolates himself from his people, people become sympathetic to him", "reference": "Sunan Ibn Majah 266", "subtitle": "On Isolation" },
+  { "id": 40, "arabic": "?? ??? ????? ??? ??? ?? ?????", "english": "Whoever goes to sleep in a state of purity, an angel stays in his bed", "reference": "Sunan Ibn Majah 3679", "subtitle": "On Purity" },
+  { "id": 41, "arabic": "?? ????? ?? ??????? ???? ??? ?? ???? ???? ???? ????", "english": "Do not despise any good deed, even if it is to greet your brother with a smiling face", "reference": "Sahih Muslim 2626", "subtitle": "On Good Deeds" },
+  { "id": 42, "arabic": "????? ????? ???? ?????? ????????", "english": "Intellect is an instinct that increases with knowledge and experience", "reference": "Imam Ali", "subtitle": "On Intelligence" },
+  { "id": 43, "arabic": "?? ???? ????? ????? ???? ???? ?????", "english": "Whoever seeks the faults of people, Allah will seek his faults", "reference": "Sunan Abu Dawud 4880", "subtitle": "On Privacy" },
+  { "id": 44, "arabic": "???? ?? ?????? ?????? ??????? ???????", "english": "Beware of the corrupt, corruption, the corrupt person and the corrupt action", "reference": "Al-Adab al-Mufrad", "subtitle": "On Corruption" },
+  { "id": 45, "arabic": "?? ??? ?? ??? ??? ???? ??? ?????", "english": "Whoever says 'There is no god but Allah' enters Paradise", "reference": "Sunan Ibn Majah 3800", "subtitle": "On Tawheed" },
+  { "id": 46, "arabic": "????? ???? ?? ??????", "english": "Traveling is a piece of punishment", "reference": "Sahih al-Bukhari 1804", "subtitle": "On Travel" },
+  { "id": 47, "arabic": "?? ??? ???? ???? ??? ???? ?? ??? ???? ??? ??? ??? ???? ?????", "english": "No one commits a greater sin before Allah than a person appointed over people who neglects them", "reference": "Sunan Ibn Majah 2862", "subtitle": "On Leadership" },
+  { "id": 48, "arabic": "?? ??? ?? ???? ???? ??? ??? ????? ?? ?????", "english": "Whoever sits in a gathering where vain talk occurs hears a blast from Hell", "reference": "Sunan Ibn Majah 4247", "subtitle": "On Gatherings" },
+  { "id": 49, "arabic": "?? ????? ???? ????? ???? ????? ?? ?????? ????? ?? ??????", "english": "Every person sets out to sell himself in the morning, some free themselves and some enslave themselves", "reference": "Sahih Muslim 1655", "subtitle": "On Actions" },
+  { "id": 50, "arabic": "?? ??? ????? ????? ???? ?? ?? ?????", "english": "From the signs of a good Muslim is that he abandons what does not concern him", "reference": "Tirmidhi 2318", "subtitle": "On Focus" },
+  { "id": 51, "arabic": "????? ??????? ?? ????", "english": "Tricks and tricks to evade Islamic law lead to Hell", "reference": "Sunan Ibn Majah 1945", "subtitle": "On Honesty" },
+  { "id": 52, "arabic": "???? ???? ????? ???? ???? ???? ?????", "english": "Keep Allah's commands, He will keep you. Remember Allah, He will remember you", "reference": "Tirmidhi 2516", "subtitle": "On Protection" },
+  { "id": 53, "arabic": "?? ??? ???? ????? ??????? ???? ??? ?? ????? ??????? ??? ?? ????? ??? ????", "english": "Whoever sees an evil must change it with his hand, or if unable then with his tongue, or if unable then with his heart", "reference": "Sahih Muslim 49", "subtitle": "On Changing Evil" },
+  { "id": 54, "arabic": "???? ??? ???? ????? ?????? ????? ???? ???? ??? ??? ???? ???", "english": "If Allah did not conceal our faults, He would expose us; if not for His mercy, where would we go", "reference": "Al-Adab al-Mufrad", "subtitle": "On Allah's Mercy" },
+  { "id": 55, "arabic": "?? ?? ??? ???? ??? ???? ?????", "english": "There is no one who sleeps except that an angel guards him", "reference": "Sunan Abu Dawud 5081", "subtitle": "On Angels" },
+  { "id": 56, "arabic": "??? ??? ????? ???? ??? ???? ??? ???? ??? ?? ?????", "english": "When any of you stands to pray, do not spit in front of you or to your right", "reference": "Sahih al-Bukhari 411", "subtitle": "On Prayer" },
+  { "id": 57, "arabic": "?????? ???", "english": "Ill omens are a form of shirk (polytheism)", "reference": "Sunan Abu Dawud 3910", "subtitle": "On Superstition" },
+  { "id": 58, "arabic": "????? ?? ???? ????? ?? ???? ????? ?? ????? ??? ?? ???? ???? ??? ??? ?? ?? ???? ???? ??????", "english": "By Allah, he does not believe, by Allah he does not believe - it was asked who O Messenger - the one whom his neighbor is not safe from his harm", "reference": "Sahih al-Bukhari 6016", "subtitle": "On Neighbors" },
+  { "id": 59, "arabic": "?? ???? ?? ???? ???? ??? ????? ?????", "english": "Allah does not forget anyone, but people forget", "reference": "Attributed Hadith", "subtitle": "On Memory" },
+  { "id": 60, "arabic": "?? ?? ??? ???? ??? ???? ??? ?? ????? ???? ????? ???", "english": "Whoever performs Hajj without obscenity or disobedience, returns from sins as the day his mother bore him", "reference": "Sahih al-Bukhari 1449", "subtitle": "On Hajj" }
 ]
