@@ -43,6 +43,12 @@ export interface CityCountryLocation {
     country: string;
 }
 
+export interface ReverseGeocodeLocation {
+    city: string;
+    country: string;
+    countryCode?: string;
+}
+
 /**
  * Validates if the given coordinates are within valid ranges
  */
@@ -124,6 +130,45 @@ export async function getPrayerTimesByCityCountry(
         };
     } catch (error) {
         console.error('Error fetching prayer times by city/country:', error);
+        return null;
+    }
+}
+
+/**
+ * Reverse-geocodes coordinates into city/country using BigDataCloud.
+ */
+export async function getCityCountryFromCoordinates(
+    coords: LocationCoordinates
+): Promise<ReverseGeocodeLocation | null> {
+    if (!isValidCoordinates(coords)) {
+        console.error('Invalid coordinates provided for reverse geocoding:', coords);
+        return null;
+    }
+
+    try {
+        const response = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${coords.latitude}&longitude=${coords.longitude}&localityLanguage=en`
+        );
+
+        if (!response.ok) {
+            throw new Error(`Reverse geocode API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const detectedCity = data.city || data.locality || data.principalSubdivision || "";
+        const detectedCountry = data.countryName || "";
+
+        if (!detectedCity || !detectedCountry) {
+            return null;
+        }
+
+        return {
+            city: detectedCity,
+            country: detectedCountry,
+            countryCode: data.countryCode
+        };
+    } catch (error) {
+        console.error('Error reverse geocoding city/country:', error);
         return null;
     }
 }
