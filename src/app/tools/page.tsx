@@ -29,6 +29,21 @@ const COUNTRY_ALIASES: Record<string, string> = {
     "UAE": "United Arab Emirates",
 };
 
+const COUNTRY_TO_CURRENCY: Record<string, string> = {
+    "Pakistan": "PKR",
+    "Saudi Arabia": "SAR",
+    "United Arab Emirates": "AED",
+    "Turkey": "TRY",
+    "United Kingdom": "GBP",
+    "United States": "USD",
+    "Malaysia": "MYR",
+    "Indonesia": "IDR",
+    "India": "INR",
+    "Bangladesh": "BDT",
+    "Qatar": "QAR",
+    "Kuwait": "KWD",
+};
+
 const normalizeCountryName = (countryName: string) => COUNTRY_ALIASES[countryName] || countryName;
 
 const ZAKAT_CURRENCY_OPTIONS = [
@@ -137,6 +152,11 @@ export default function ToolsPage() {
             setSelectedCity(availableCities[0]);
         }
     }, [selectedCountry, selectedCity, detectedCity]);
+
+    useEffect(() => {
+        const nextCurrency = COUNTRY_TO_CURRENCY[selectedCountry] || "PKR";
+        setSelectedCurrency(nextCurrency);
+    }, [selectedCountry]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
