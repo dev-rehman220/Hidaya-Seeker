@@ -1,242 +1,62 @@
-﻿[
-    {
-        "id":  1,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 1)"
-    },
-    {
-        "id":  2,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 2)"
-    },
-    {
-        "id":  3,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 3)"
-    },
-    {
-        "id":  4,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 4)"
-    },
-    {
-        "id":  5,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 5)"
-    },
-    {
-        "id":  6,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 6)"
-    },
-    {
-        "id":  7,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 7)"
-    },
-    {
-        "id":  8,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 8)"
-    },
-    {
-        "id":  9,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 9)"
-    },
-    {
-        "id":  10,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 10)"
-    },
-    {
-        "id":  11,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 11)"
-    },
-    {
-        "id":  12,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 12)"
-    },
-    {
-        "id":  13,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 13)"
-    },
-    {
-        "id":  14,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 14)"
-    },
-    {
-        "id":  15,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 15)"
-    },
-    {
-        "id":  16,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 16)"
-    },
-    {
-        "id":  17,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 17)"
-    },
-    {
-        "id":  18,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 18)"
-    },
-    {
-        "id":  19,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 19)"
-    },
-    {
-        "id":  20,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 20)"
-    },
-    {
-        "id":  21,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 21)"
-    },
-    {
-        "id":  22,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 22)"
-    },
-    {
-        "id":  23,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 23)"
-    },
-    {
-        "id":  24,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 24)"
-    },
-    {
-        "id":  25,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 25)"
-    },
-    {
-        "id":  26,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 26)"
-    },
-    {
-        "id":  27,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 27)"
-    },
-    {
-        "id":  28,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 28)"
-    },
-    {
-        "id":  29,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 29)"
-    },
-    {
-        "id":  30,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 30)"
-    },
-    {
-        "id":  31,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 31)"
-    },
-    {
-        "id":  32,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 32)"
-    },
-    {
-        "id":  33,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 33)"
-    },
-    {
-        "id":  34,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 34)"
-    },
-    {
-        "id":  35,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 35)"
-    },
-    {
-        "id":  36,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 36)"
-    },
-    {
-        "id":  37,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 37)"
-    },
-    {
-        "id":  38,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 38)"
-    },
-    {
-        "id":  39,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 39)"
-    },
-    {
-        "id":  40,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 40)"
-    },
-    {
-        "id":  41,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 41)"
-    },
-    {
-        "id":  42,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 42)"
-    },
-    {
-        "id":  43,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 43)"
-    },
-    {
-        "id":  44,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 44)"
-    },
-    {
-        "id":  45,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 45)"
-    },
-    {
-        "id":  46,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 46)"
-    },
-    {
-        "id":  47,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 47)"
-    },
-    {
-        "id":  48,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 48)"
-    },
-    {
-        "id":  49,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 49)"
-    },
-    {
-        "id":  50,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 50)"
-    },
-    {
-        "id":  51,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 51)"
-    },
-    {
-        "id":  52,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 52)"
-    },
-    {
-        "id":  53,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 53)"
-    },
-    {
-        "id":  54,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 54)"
-    },
-    {
-        "id":  55,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 55)"
-    },
-    {
-        "id":  56,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 56)"
-    },
-    {
-        "id":  57,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 57)"
-    },
-    {
-        "id":  58,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 58)"
-    },
-    {
-        "id":  59,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 59)"
-    },
-    {
-        "id":  60,
-        "english":  "Remember Allah often and keep your heart sincere. (Daily Reminder 60)"
-    }
+[
+  { "id": 1, "english": "Remember that every hardship is temporary; Allah will always provide a way out for those who are patient and trust in Him." },
+  { "id": 2, "english": "Your actions today are building your character for tomorrow. Make sure every action brings you closer to Allah." },
+  { "id": 3, "english": "Kindness costs nothing but gives everything. Spread mercy wherever you go, for it comes back to you manifold." },
+  { "id": 4, "english": "When you feel lost, remember that Allah has never forgotten you. He guides those who seek His guidance with sincerity." },
+  { "id": 5, "english": "Do not compare your journey with others. Focus on being better than you were yesterday - that is true success." },
+  { "id": 6, "english": "Forgiveness is not weakness; it is strength. Free yourself from the burden of holding grudges." },
+  { "id": 7, "english": "Every challenge is an opportunity for growth and a chance to strengthen your faith. Embrace difficulties with patience." },
+  { "id": 8, "english": "The Quran is not just a book to read; it is guidance to live by. Let its wisdom transform your heart." },
+  { "id": 9, "english": "Your purpose is greater than your problems. Keep faith and never lose hope in Allah's infinite wisdom and plan." },
+  { "id": 10, "english": "Take a moment today to thank Allah for all His blessings. Gratitude multiplies blessings and brings peace to the heart." },
+  { "id": 11, "english": "Honesty is the best policy, not just in dealings with others but most importantly in your relationship with Allah." },
+  { "id": 12, "english": "Family is a blessing from Allah. Cherish every moment with your loved ones; time is precious and never returns." },
+  { "id": 13, "english": "Negativity is a choice, just as positivity is. Choose to see the good in every situation and in every person." },
+  { "id": 14, "english": "The struggle you are facing right now is building the strength you need for what is coming next. Trust the process." },
+  { "id": 15, "english": "Education and knowledge are pathways to understanding Allah's creation better. Never stop learning and growing." },
+  { "id": 16, "english": "Humility is a crown worn by the wise. Remember that all knowledge and strength come from Allah alone." },
+  { "id": 17, "english": "Take care of your health, for it is a trust from Allah. A healthy body helps you worship and serve better." },
+  { "id": 18, "english": "Mistakes are not failures; they are lessons. Learn from them, seek forgiveness, and move forward with improvement." },
+  { "id": 19, "english": "When you help others without expecting anything in return, you please Allah and earn His love and blessings." },
+  { "id": 20, "english": "Be patient with yourself. Change does not happen overnight, but consistent effort leads to transformation." },
+  { "id": 21, "english": "Your mental health is important. If you are struggling, seek help. Allah has given us wisdom to care for ourselves." },
+  { "id": 22, "english": "Money is a means, not an end. Use it wisely and generously; remember that all wealth ultimately belongs to Allah." },
+  { "id": 23, "english": "The night brings peace and tranquility. Use these quiet moments to reflect, worship, and strengthen your connection with Allah." },
+  { "id": 24, "english": "Words have power. Speak with intention, kindness, and truth. Your words can heal or harm - choose wisely." },
+  { "id": 25, "english": "Loneliness is temporary, but connection with Allah is eternal. Strengthen your bond with Him through prayer and remembrance." },
+  { "id": 26, "english": "Serve others as you wish to be served. The character of a believer is reflected in how they treat those around them." },
+  { "id": 27, "english": "Your past does not define your future. Allah's mercy is greater than any mistake you have made. Repent and move forward." },
+  { "id": 28, "english": "Learn to say 'no' to things that divert you from your purpose and 'yes' to things that bring you closer to Allah." },
+  { "id": 29, "english": "Small acts of goodness are never too small. A smile, a kind word, or a helping hand can change someone's day." },
+  { "id": 30, "english": "Fear Allah more than you fear the world, and the world will cease to frighten you. Your trust should be in Allah alone." },
+  { "id": 31, "english": "Celebrate the successes of others without jealousy. When you are happy for them, Allah multiplies blessings for you too." },
+  { "id": 32, "english": "Every tear shed in hardship is witnessed by Allah. Your patience does not go unnoticed in His divine ledger." },
+  { "id": 33, "english": "Purpose-driven living brings joy and satisfaction. Align your goals with pleasing Allah and serving humanity." },
+  { "id": 34, "english": "Silence can be golden. Not every thought needs to be spoken. Sometimes listening is more powerful than speaking." },
+  { "id": 35, "english": "Your relationship with parents is sacred. Treat them with respect and kindness, for their dua for you is powerful." },
+  { "id": 36, "english": "Toxic relationships drain your soul. Surround yourself with people who encourage your growth and connection with Allah." },
+  { "id": 37, "english": "The best investment is in your afterlife. Give in charity, perform good deeds, and let your legacy be one of kindness." },
+  { "id": 38, "english": "Do not procrastinate today what you can do now. Time is the most valuable resource Allah has given you." },
+  { "id": 39, "english": "Protect your heart from bitterness and your tongue from gossip. Guard your character like you guard your most precious possession." },
+  { "id": 40, "english": "Allah never gives you a burden you cannot bear. Trust in your strength and in Allah's plans for you." },
+  { "id": 41, "english": "Gratitude transforms complaints into praises. Look around and see the countless blessings you have been given." },
+  { "id": 42, "english": "Your intentions matter more than the results. Focus on doing the right thing with sincere intentions." },
+  { "id": 43, "english": "Take care of the environment. The earth is Allah's creation, and you are responsible for protecting it." },
+  { "id": 44, "english": "Anger is a temporary madness. When you feel it rising, remember to breathe and invoke Allah's patience." },
+  { "id": 45, "english": "Community is important. Support your Muslim brothers and sisters; together you are stronger in faith." },
+  { "id": 46, "english": "Do not let worldly distractions dim your spiritual light. Protect your iman like you protect your eyes." },
+  { "id": 47, "english": "Every night before sleep, reflect on your day. Seek forgiveness for your mistakes and plan to be better tomorrow." },
+  { "id": 48, "english": "Hope is a powerful emotion. No matter how dark things seem, remember that Allah's mercy knows no bounds." },
+  { "id": 49, "english": "Your body is a trust from Allah. Honor it by not engaging in harmful substances and by taking care of it properly." },
+  { "id": 50, "english": "Modesty is not outdated; it is timeless. In a world that reveals everything, modesty becomes a rare and beautiful virtue." },
+  { "id": 51, "english": "When you feel overwhelmed, return to the basics: Prayer will calm your mind and heart." },
+  { "id": 52, "english": "Success in the afterlife is more important than success in this world. Keep your priorities aligned with eternity." },
+  { "id": 53, "english": "Your test is not a punishment but a chance to purify your soul and strengthen your faith." },
+  { "id": 54, "english": "Patience paired with action is the formula for achieving your goals. Do your part and trust Allah for the rest." },
+  { "id": 55, "english": "The tongue is small but mighty. Use it to praise Allah, encourage others, and spread hope." },
+  { "id": 56, "english": "Remember those less fortunate than you. Helping others is not charity; it is a duty to Allah and humanity." },
+  { "id": 57, "english": "Every moment is a gift. Make the most of it by being present, mindful, and grateful for Allah's infinite blessings." },
+  { "id": 58, "english": "Your legacy matters. Live in such a way that when you leave this world, people remember your kindness." },
+  { "id": 59, "english": "Do not underestimate the power of dua. Allah listens to every prayer with mercy and love." },
+  { "id": 60, "english": "End this day by remembering that tomorrow is not promised. Make peace with yourself and others before the night ends." }
 ]
