@@ -2,20 +2,34 @@
 
 import { useState, useEffect } from "react";
 import { Calculator, Compass, Clock, RefreshCw } from "lucide-react";
-import { getPrayerTimesByCityCountry, calculateQiblaDirection, PrayerTimesData } from "@/lib/prayerTimes";
+import {
+    getPrayerTimesByCityCountry,
+    getCityCountryFromCoordinates,
+    calculateQiblaDirection,
+    PrayerTimesData
+} from "@/lib/prayerTimes";
 
-const CITY_COUNTRY_OPTIONS = [
-    { label: "Makkah, Saudi Arabia", city: "Makkah", country: "Saudi Arabia" },
-    { label: "Madinah, Saudi Arabia", city: "Madinah", country: "Saudi Arabia" },
-    { label: "Karachi, Pakistan", city: "Karachi", country: "Pakistan" },
-    { label: "Lahore, Pakistan", city: "Lahore", country: "Pakistan" },
-    { label: "Dubai, United Arab Emirates", city: "Dubai", country: "United Arab Emirates" },
-    { label: "Istanbul, Turkey", city: "Istanbul", country: "Turkey" },
-    { label: "London, United Kingdom", city: "London", country: "United Kingdom" },
-    { label: "New York, United States", city: "New York", country: "United States" },
-    { label: "Kuala Lumpur, Malaysia", city: "Kuala Lumpur", country: "Malaysia" },
-    { label: "Jakarta, Indonesia", city: "Jakarta", country: "Indonesia" },
-] as const;
+const COUNTRY_CITY_OPTIONS: Record<string, string[]> = {
+    "Pakistan": ["Karachi", "Lahore", "Islamabad", "Rawalpindi", "Peshawar"],
+    "Saudi Arabia": ["Makkah", "Madinah", "Riyadh", "Jeddah", "Dammam"],
+    "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah", "Ajman"],
+    "Turkey": ["Istanbul", "Ankara", "Izmir", "Bursa"],
+    "United Kingdom": ["London", "Birmingham", "Manchester", "Leeds"],
+    "United States": ["New York", "Chicago", "Los Angeles", "Houston"],
+    "Malaysia": ["Kuala Lumpur", "Shah Alam", "Johor Bahru", "Penang"],
+    "Indonesia": ["Jakarta", "Bandung", "Surabaya", "Yogyakarta"],
+    "India": ["Mumbai", "Delhi", "Hyderabad", "Bengaluru"],
+    "Bangladesh": ["Dhaka", "Chittagong", "Sylhet", "Khulna"],
+    "Qatar": ["Doha", "Al Rayyan", "Al Wakrah"],
+    "Kuwait": ["Kuwait City", "Hawalli", "Farwaniya"],
+};
+
+const COUNTRY_ALIASES: Record<string, string> = {
+    "United States of America": "United States",
+    "UAE": "United Arab Emirates",
+};
+
+const normalizeCountryName = (countryName: string) => COUNTRY_ALIASES[countryName] || countryName;
 
 const ZAKAT_CURRENCY_OPTIONS = [
     { code: "PKR", label: "Pakistan - PKR" },
@@ -48,13 +62,21 @@ export default function ToolsPage() {
     const [qiblaDirection, setQiblaDirection] = useState<number | null>(null);
     const [prayerError, setPrayerError] = useState("");
     const [qiblaError, setQiblaError] = useState("");
-    const [selectedLocation, setSelectedLocation] = useState(() => `${CITY_COUNTRY_OPTIONS[0].city}|${CITY_COUNTRY_OPTIONS[0].country}`);
+    const [selectedCountry, setSelectedCountry] = useState("Pakistan");
+    const [selectedCity, setSelectedCity] = useState("Karachi");
+    const [detectedCity, setDetectedCity] = useState("");
     const [selectedCurrency, setSelectedCurrency] = useState("PKR");
+
+    const countryOptions = Object.keys(COUNTRY_CITY_OPTIONS);
+    const defaultCities = COUNTRY_CITY_OPTIONS[selectedCountry] || [];
+    const cityOptions = detectedCity && !defaultCities.includes(detectedCity)
+        ? [detectedCity, ...defaultCities]
+        : defaultCities;
 
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
-                (position) => {
+                async (position) => {
                     const coords = {
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude
@@ -63,6 +85,17 @@ export default function ToolsPage() {
                     const qibla = calculateQiblaDirection(coords);
                     setQiblaDirection(Math.round(qibla));
                     setQiblaError("");
+
+                    // Auto-detect city/country from geolocation and use it as default selection.
+                    const detected = await getCityCountryFromCoordinates(coords);
+                    if (detected?.country && detected.city) {
+                        const normalizedCountry = normalizeCountryName(detected.country);
+                        if (COUNTRY_CITY_OPTIONS[normalizedCountry]) {
+                            setSelectedCountry(normalizedCountry);
+                            setDetectedCity(detected.city);
+                            setSelectedCity(detected.city);
+                        }
+                    }
                 },
                 (error) => {
                     console.warn("Geolocation denied or unavailable.", error);
@@ -76,11 +109,13 @@ export default function ToolsPage() {
 
     useEffect(() => {
         const fetchByCityCountry = async () => {
-            const [city, country] = selectedLocation.split("|");
-            if (!city || !country) return;
+            if (!selectedCity || !selectedCountry) return;
 
             try {
-                const data = await getPrayerTimesByCityCountry({ city, country });
+                const data = await getPrayerTimesByCityCountry({
+                    city: selectedCity,
+                    country: selectedCountry
+                });
                 if (data) {
                     setPrayerTimes(data.timings);
                     setPrayerError("");
@@ -94,7 +129,14 @@ export default function ToolsPage() {
         };
 
         fetchByCityCountry();
-    }, [selectedLocation]);
+    }, [selectedCountry, selectedCity]);
+
+    useEffect(() => {
+        const availableCities = COUNTRY_CITY_OPTIONS[selectedCountry] || [];
+        if (availableCities.length > 0 && !availableCities.includes(selectedCity) && selectedCity !== detectedCity) {
+            setSelectedCity(availableCities[0]);
+        }
+    }, [selectedCountry, selectedCity, detectedCity]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -246,23 +288,42 @@ export default function ToolsPage() {
                             </div>
 
                             <div className="mb-4 space-y-2">
-                                <label htmlFor="city-country" className="text-sm font-medium text-neutral-dark/80 dark:text-neutral-light/80">
-                                    Choose city or country
+                                <label htmlFor="country" className="text-sm font-medium text-neutral-dark/80 dark:text-neutral-light/80">
+                                    Country
                                 </label>
                                 <select
-                                    id="city-country"
-                                    value={selectedLocation}
-                                    onChange={(e) => setSelectedLocation(e.target.value)}
+                                    id="country"
+                                    value={selectedCountry}
+                                    onChange={(e) => setSelectedCountry(e.target.value)}
                                     className="w-full rounded-lg border border-primary/20 bg-neutral-light/60 dark:bg-black/20 px-3 py-2 text-sm text-neutral-dark dark:text-neutral-light outline-none focus:ring-2 focus:ring-primary/50"
                                 >
-                                    {CITY_COUNTRY_OPTIONS.map((option) => (
-                                        <option key={`${option.city}|${option.country}`} value={`${option.city}|${option.country}`}>
-                                            {option.label}
+                                    {countryOptions.map((country) => (
+                                        <option key={country} value={country}>
+                                            {country}
                                         </option>
                                     ))}
                                 </select>
+
+                                <label htmlFor="city" className="pt-2 text-sm font-medium text-neutral-dark/80 dark:text-neutral-light/80">
+                                    City (searchable)
+                                </label>
+                                <input
+                                    id="city"
+                                    type="text"
+                                    list="city-options"
+                                    value={selectedCity}
+                                    onChange={(e) => setSelectedCity(e.target.value)}
+                                    placeholder="Start typing city name"
+                                    className="w-full rounded-lg border border-primary/20 bg-neutral-light/60 dark:bg-black/20 px-3 py-2 text-sm text-neutral-dark dark:text-neutral-light outline-none focus:ring-2 focus:ring-primary/50"
+                                />
+                                <datalist id="city-options">
+                                    {cityOptions.map((city) => (
+                                        <option key={city} value={city} />
+                                    ))}
+                                </datalist>
+
                                 <p className="text-xs text-neutral-dark/60 dark:text-neutral-light/60">
-                                    Showing times for {selectedLocation.replace("|", ", ")}
+                                    Showing times for {selectedCity}, {selectedCountry}
                                 </p>
                             </div>
 
