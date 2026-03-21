@@ -3,9 +3,9 @@ export const dynamic = 'force-dynamic';
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import Post from '@/models/Post';
-import DailyContent from '@/models/DailyContent';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { getDailyJsonEntryCount } from '@/lib/dailyJsonStore';
 
 export async function GET() {
     try {
@@ -22,7 +22,7 @@ export async function GET() {
             Post.countDocuments({}),
             Post.countDocuments({ status: 'published' }),
             Post.countDocuments({ status: 'draft' }),
-            DailyContent.countDocuments({}),
+            getDailyJsonEntryCount(),
         ]);
 
         const recentPosts = await Post.find({})
