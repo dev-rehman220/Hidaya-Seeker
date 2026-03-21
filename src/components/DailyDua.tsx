@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Link2, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Link2, Bookmark, BookmarkCheck, CalendarDays } from 'lucide-react';
 import { isBookmarked, toggleBookmark } from "@/lib/bookmarks";
 
 export default function DailyDua() {
@@ -13,11 +13,13 @@ export default function DailyDua() {
     });
     const [loading, setLoading] = useState(true);
     const [bookmarked, setBookmarked] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
 
     useEffect(() => {
         const fetchContent = async () => {
+            setLoading(true);
             try {
-                const res = await fetch('/api/content');
+                const res = await fetch(`/api/content?date=${encodeURIComponent(selectedDate)}`);
                 if (res.ok) {
                     const data = await res.json();
                     const item = data.find((i: any) => i.type === 'dua');
@@ -31,6 +33,9 @@ export default function DailyDua() {
         };
 
         fetchContent();
+    }, [selectedDate]);
+
+    useEffect(() => {
         setBookmarked(isBookmarked("dua:daily"));
     }, []);
 
@@ -51,6 +56,16 @@ export default function DailyDua() {
                 <div className="flex flex-col items-center text-center mb-8">
                     <div className="text-4xl mb-2 text-secondary font-arabic">🤲</div>
                     <h2 className="text-3xl font-bold text-primary dark:text-primary-light">Dua of the Day</h2>
+                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-white/40 bg-white/10 px-3 py-2 text-white">
+                        <CalendarDays className="w-4 h-4" />
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="bg-transparent text-sm outline-none"
+                            aria-label="Select date for Daily Dua"
+                        />
+                    </div>
                     <div className="w-24 h-1 bg-secondary mt-4 rounded-full"></div>
                 </div>
 

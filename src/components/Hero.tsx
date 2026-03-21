@@ -27,7 +27,7 @@ export default function Hero() {
             <div className="relative z-10 container mx-auto px-4 text-center">
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl text-primary flex flex-col gap-2">
                     <span className="font-arabic text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-2 text-primary-dark dark:text-primary-light">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</span>
-                    <span>Find Peace in Remembrance</span>
+                    <span className="py-5">Find Peace in Remembrance</span>
                 </h1>
                 <p className="mx-auto max-w-[700px] text-neutral-dark/80 dark:text-neutral-light/80 md:text-xl/relaxed lg:text-2xl/relaxed mt-6">
                     Your daily source of Islamic guidance, authentic Hadiths, beautiful Duas, and spiritual growth.

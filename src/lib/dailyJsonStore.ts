@@ -28,7 +28,7 @@ function getUtcDayNumber(date: Date = new Date()): number {
   return Math.floor(utcMidnight / 86400000);
 }
 
-function getTodayIndex(totalItems: number, date: Date = new Date()): number {
+function getDateIndex(totalItems: number, date: Date = new Date()): number {
   if (totalItems <= 0) {
     return 0;
   }
@@ -52,13 +52,20 @@ export async function writeDailyItems(type: DailyJsonType, items: DailyJsonItem[
 }
 
 export async function getTodayDailyItem(type: DailyJsonType): Promise<DailyJsonItem & { type: DailyJsonType }> {
+  return getDailyItemForDate(type);
+}
+
+export async function getDailyItemForDate(
+  type: DailyJsonType,
+  date: Date = new Date()
+): Promise<DailyJsonItem & { type: DailyJsonType }> {
   const items = await readDailyItems(type);
 
   if (!items.length) {
     throw new Error(`No entries found for type: ${type}`);
   }
 
-  const index = getTodayIndex(items.length);
+  const index = getDateIndex(items.length, date);
   return {
     type,
     ...items[index],
@@ -75,7 +82,7 @@ export async function saveTodayDailyItem(
     throw new Error(`No entries found for type: ${type}`);
   }
 
-  const index = getTodayIndex(items.length);
+  const index = getDateIndex(items.length);
   const current = items[index];
 
   const updated: DailyJsonItem = {

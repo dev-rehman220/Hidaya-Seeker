@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { BookOpen, Bookmark, BookmarkCheck } from 'lucide-react';
+import { BookOpen, Bookmark, BookmarkCheck, CalendarDays } from 'lucide-react';
 import { isBookmarked, toggleBookmark } from "@/lib/bookmarks";
 
 export default function DailyAyah() {
@@ -13,11 +13,13 @@ export default function DailyAyah() {
     });
     const [loading, setLoading] = useState(true);
     const [bookmarked, setBookmarked] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
 
     useEffect(() => {
         const fetchContent = async () => {
+            setLoading(true);
             try {
-                const res = await fetch('/api/content');
+                const res = await fetch(`/api/content?date=${encodeURIComponent(selectedDate)}`);
                 if (res.ok) {
                     const data = await res.json();
                     const item = data.find((i: any) => i.type === 'ayah');
@@ -31,6 +33,9 @@ export default function DailyAyah() {
         };
 
         fetchContent();
+    }, [selectedDate]);
+
+    useEffect(() => {
         setBookmarked(isBookmarked("ayah:daily"));
     }, []);
 
@@ -51,6 +56,16 @@ export default function DailyAyah() {
                 <div className="flex flex-col items-center text-center mb-8 relative">
                     <BookOpen className="w-8 h-8 text-secondary mb-2" />
                     <h2 className="text-3xl font-bold text-primary dark:text-primary-light">Daily Qur'an Ayah</h2>
+                    <div className="mt-4 flex items-center gap-2 rounded-xl border border-primary/20 bg-white/80 dark:bg-black/20 px-3 py-2">
+                        <CalendarDays className="w-4 h-4 text-primary" />
+                        <input
+                            type="date"
+                            value={selectedDate}
+                            onChange={(e) => setSelectedDate(e.target.value)}
+                            className="bg-transparent text-sm text-neutral-dark dark:text-neutral-light outline-none"
+                            aria-label="Select date for Daily Ayah"
+                        />
+                    </div>
                     <div className="w-24 h-1 bg-secondary mt-4 rounded-full"></div>
                 </div>
 
