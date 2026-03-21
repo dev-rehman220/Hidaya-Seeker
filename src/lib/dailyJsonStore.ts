@@ -2,6 +2,8 @@ import { promises as fs } from "fs";
 import path from "path";
 
 export type DailyJsonType = "ayah" | "hadith" | "dua" | "reminder";
+const DAILY_CYCLE_DAYS = 60;
+const CYCLE_ANCHOR_UTC = "2026-01-01T00:00:00.000Z";
 
 export interface DailyJsonItem {
   id: number;
@@ -28,12 +30,20 @@ function getUtcDayNumber(date: Date = new Date()): number {
   return Math.floor(utcMidnight / 86400000);
 }
 
+function getCycleIndex(date: Date = new Date()): number {
+  const anchor = new Date(CYCLE_ANCHOR_UTC);
+  const delta = getUtcDayNumber(date) - getUtcDayNumber(anchor);
+
+  // Keep index in [0..59] even for dates before anchor.
+  return ((delta % DAILY_CYCLE_DAYS) + DAILY_CYCLE_DAYS) % DAILY_CYCLE_DAYS;
+}
+
 function getDateIndex(totalItems: number, date: Date = new Date()): number {
-  if (totalItems <= 0) {
+  if (totalItems < DAILY_CYCLE_DAYS) {
     return 0;
   }
 
-  return getUtcDayNumber(date) % totalItems;
+  return getCycleIndex(date);
 }
 
 export async function readDailyItems(type: DailyJsonType): Promise<DailyJsonItem[]> {
@@ -61,8 +71,8 @@ export async function getDailyItemForDate(
 ): Promise<DailyJsonItem & { type: DailyJsonType }> {
   const items = await readDailyItems(type);
 
-  if (!items.length) {
-    throw new Error(`No entries found for type: ${type}`);
+  if (items.length < DAILY_CYCLE_DAYS) {
+    throw new Error(`Expected at least ${DAILY_CYCLE_DAYS} entries for type: ${type}`);
   }
 
   const index = getDateIndex(items.length, date);
@@ -78,8 +88,8 @@ export async function saveTodayDailyItem(
 ): Promise<DailyJsonItem & { type: DailyJsonType }> {
   const items = await readDailyItems(type);
 
-  if (!items.length) {
-    throw new Error(`No entries found for type: ${type}`);
+  if (items.length < DAILY_CYCLE_DAYS) {
+    throw new Error(`Expected at least ${DAILY_CYCLE_DAYS} entries for type: ${type}`);
   }
 
   const index = getDateIndex(items.length);
