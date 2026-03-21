@@ -2,7 +2,36 @@
 
 import { useState, useEffect } from "react";
 import { Calculator, Compass, Clock, RefreshCw } from "lucide-react";
-import { getPrayerTimesByLocation, calculateQiblaDirection, PrayerTimesData } from "@/lib/prayerTimes";
+import { getPrayerTimesByCityCountry, calculateQiblaDirection, PrayerTimesData } from "@/lib/prayerTimes";
+
+const CITY_COUNTRY_OPTIONS = [
+    { label: "Makkah, Saudi Arabia", city: "Makkah", country: "Saudi Arabia" },
+    { label: "Madinah, Saudi Arabia", city: "Madinah", country: "Saudi Arabia" },
+    { label: "Karachi, Pakistan", city: "Karachi", country: "Pakistan" },
+    { label: "Lahore, Pakistan", city: "Lahore", country: "Pakistan" },
+    { label: "Dubai, United Arab Emirates", city: "Dubai", country: "United Arab Emirates" },
+    { label: "Istanbul, Turkey", city: "Istanbul", country: "Turkey" },
+    { label: "London, United Kingdom", city: "London", country: "United Kingdom" },
+    { label: "New York, United States", city: "New York", country: "United States" },
+    { label: "Kuala Lumpur, Malaysia", city: "Kuala Lumpur", country: "Malaysia" },
+    { label: "Jakarta, Indonesia", city: "Jakarta", country: "Indonesia" },
+] as const;
+
+const ZAKAT_CURRENCY_OPTIONS = [
+    { code: "PKR", label: "Pakistan - PKR" },
+    { code: "SAR", label: "Saudi Arabia - SAR" },
+    { code: "AED", label: "UAE - AED" },
+    { code: "USD", label: "United States - USD" },
+    { code: "GBP", label: "United Kingdom - GBP" },
+    { code: "EUR", label: "Eurozone - EUR" },
+    { code: "TRY", label: "Turkey - TRY" },
+    { code: "MYR", label: "Malaysia - MYR" },
+    { code: "IDR", label: "Indonesia - IDR" },
+    { code: "INR", label: "India - INR" },
+    { code: "BDT", label: "Bangladesh - BDT" },
+    { code: "QAR", label: "Qatar - QAR" },
+    { code: "KWD", label: "Kuwait - KWD" },
+] as const;
 
 export default function ToolsPage() {
     // Zakat Calculator State
@@ -17,37 +46,55 @@ export default function ToolsPage() {
 
     const [prayerTimes, setPrayerTimes] = useState<PrayerTimesData | null>(null);
     const [qiblaDirection, setQiblaDirection] = useState<number | null>(null);
-    const [locationError, setLocationError] = useState("");
+    const [prayerError, setPrayerError] = useState("");
+    const [qiblaError, setQiblaError] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState(() => `${CITY_COUNTRY_OPTIONS[0].city}|${CITY_COUNTRY_OPTIONS[0].country}`);
+    const [selectedCurrency, setSelectedCurrency] = useState("PKR");
 
     useEffect(() => {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
-                async (position) => {
+                (position) => {
                     const coords = {
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude
                     };
 
-                    try {
-                        const data = await getPrayerTimesByLocation(coords);
-                        if (data) {
-                            setPrayerTimes(data.timings);
-                        }
-                        const qibla = calculateQiblaDirection(coords);
-                        setQiblaDirection(Math.round(qibla));
-                    } catch (error) {
-                        setLocationError("Failed to fetch location data.");
-                    }
+                    const qibla = calculateQiblaDirection(coords);
+                    setQiblaDirection(Math.round(qibla));
+                    setQiblaError("");
                 },
                 (error) => {
                     console.warn("Geolocation denied or unavailable.", error);
-                    setLocationError("Enable location to see local prayer times.");
+                    setQiblaError("Enable location to calculate Qibla direction.");
                 }
             );
         } else {
-            setLocationError("Geolocation not supported by this browser.");
+            setQiblaError("Geolocation not supported by this browser.");
         }
     }, []);
+
+    useEffect(() => {
+        const fetchByCityCountry = async () => {
+            const [city, country] = selectedLocation.split("|");
+            if (!city || !country) return;
+
+            try {
+                const data = await getPrayerTimesByCityCountry({ city, country });
+                if (data) {
+                    setPrayerTimes(data.timings);
+                    setPrayerError("");
+                } else {
+                    setPrayerError("Could not load prayer times for selected city.");
+                }
+            } catch (error) {
+                console.error("Failed to fetch prayer times by city/country", error);
+                setPrayerError("Could not load prayer times for selected city.");
+            }
+        };
+
+        fetchByCityCountry();
+    }, [selectedLocation]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -71,6 +118,12 @@ export default function ToolsPage() {
 
     // Assuming Nisab is met for simplicity in this demo, usually it's ~85g of gold equivalent
     const zakatAmount = totalWealth > 0 ? totalWealth * 0.025 : 0;
+    const currencyFormatter = new Intl.NumberFormat(undefined, {
+        style: "currency",
+        currency: selectedCurrency,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
 
     return (
         <div className="flex-grow bg-neutral-light/30 dark:bg-black/10 py-12 px-4 md:px-8">
@@ -100,8 +153,29 @@ export default function ToolsPage() {
                             {/* Form Variables */}
                             <div className="space-y-4">
                                 <h3 className="font-semibold text-lg border-b border-neutral-light dark:border-white/10 pb-2 mb-4">
-                                    Enter Assets (in your currency)
+                                    Enter Assets
                                 </h3>
+
+                                <div className="flex flex-col">
+                                    <label htmlFor="zakat-currency" className="text-sm font-medium opacity-80 mb-1">
+                                        Currency
+                                    </label>
+                                    <select
+                                        id="zakat-currency"
+                                        value={selectedCurrency}
+                                        onChange={(e) => setSelectedCurrency(e.target.value)}
+                                        className="w-full px-3 py-2 bg-neutral-light/50 dark:bg-black/20 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                    >
+                                        {ZAKAT_CURRENCY_OPTIONS.map((currency) => (
+                                            <option key={currency.code} value={currency.code}>
+                                                {currency.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <p className="mt-1 text-xs text-neutral-dark/60 dark:text-neutral-light/60">
+                                        All values and results are in {selectedCurrency}.
+                                    </p>
+                                </div>
 
                                 {[
                                     { label: "Gold Value", name: "gold", type: "asset" },
@@ -117,14 +191,14 @@ export default function ToolsPage() {
                                             {input.type === 'liability' && <span className="text-red-500 text-xs">(Minus)</span>}
                                         </label>
                                         <div className="relative">
-                                            <span className="absolute left-3 top-2.5 opacity-50">$</span>
+                                            <span className="absolute left-3 top-2.5 opacity-50 text-xs font-semibold">{selectedCurrency}</span>
                                             <input
                                                 type="number"
                                                 name={input.name}
                                                 min="0"
                                                 value={zakatData[input.name as keyof typeof zakatData] || ''}
                                                 onChange={handleInputChange}
-                                                className="w-full pl-8 pr-4 py-2 bg-neutral-light/50 dark:bg-black/20 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
+                                                className="w-full pl-14 pr-4 py-2 bg-neutral-light/50 dark:bg-black/20 border border-primary/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
                                                 placeholder="0.00"
                                             />
                                         </div>
@@ -141,7 +215,7 @@ export default function ToolsPage() {
                                 <div>
                                     <p className="text-sm font-medium opacity-80 mb-1">Total Eligible Wealth</p>
                                     <p className="text-3xl font-bold text-neutral-dark dark:text-neutral-light">
-                                        ${totalWealth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        {currencyFormatter.format(totalWealth)}
                                     </p>
                                 </div>
 
@@ -150,7 +224,7 @@ export default function ToolsPage() {
                                         Your Zakat Amount (2.5%)
                                     </p>
                                     <p className="text-5xl font-bold text-primary dark:text-secondary-light">
-                                        ${zakatAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                        {currencyFormatter.format(zakatAmount)}
                                     </p>
                                 </div>
 
@@ -171,9 +245,30 @@ export default function ToolsPage() {
                                 <h3 className="text-xl font-bold text-primary dark:text-primary-light">Prayer Times</h3>
                             </div>
 
-                            {locationError ? (
+                            <div className="mb-4 space-y-2">
+                                <label htmlFor="city-country" className="text-sm font-medium text-neutral-dark/80 dark:text-neutral-light/80">
+                                    Choose city or country
+                                </label>
+                                <select
+                                    id="city-country"
+                                    value={selectedLocation}
+                                    onChange={(e) => setSelectedLocation(e.target.value)}
+                                    className="w-full rounded-lg border border-primary/20 bg-neutral-light/60 dark:bg-black/20 px-3 py-2 text-sm text-neutral-dark dark:text-neutral-light outline-none focus:ring-2 focus:ring-primary/50"
+                                >
+                                    {CITY_COUNTRY_OPTIONS.map((option) => (
+                                        <option key={`${option.city}|${option.country}`} value={`${option.city}|${option.country}`}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-xs text-neutral-dark/60 dark:text-neutral-light/60">
+                                    Showing times for {selectedLocation.replace("|", ", ")}
+                                </p>
+                            </div>
+
+                            {prayerError ? (
                                 <p className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg flex-grow flex items-center justify-center">
-                                    {locationError}
+                                    {prayerError}
                                 </p>
                             ) : !prayerTimes ? (
                                 <div className="flex items-center justify-center py-6 flex-grow">
@@ -221,8 +316,8 @@ export default function ToolsPage() {
                                     </p>
                                     <p className="text-sm opacity-70">From True North</p>
                                 </div>
-                            ) : locationError ? (
-                                <p className="text-sm text-amber-600 dark:text-amber-400">Location required</p>
+                            ) : qiblaError ? (
+                                <p className="text-sm text-amber-600 dark:text-amber-400">{qiblaError}</p>
                             ) : (
                                 <p className="text-sm opacity-70">Calculating...</p>
                             )}
