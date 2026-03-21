@@ -24,10 +24,7 @@ export default function Hero() {
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-3xl" />
             </div>
 
-            <div className="container relative z-10 mx-auto px-4 md:px-8 text-center">
-                <div className="inline-block mb-3 px-3 py-1 rounded-full bg-secondary/10 text-secondary-dark dark:text-secondary-light text-xs font-semibold border border-secondary/20 tracking-wider uppercase">
-                    Daily Islamic Reminder
-                </div>
+           
                 <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl text-primary flex flex-col gap-2">
                     <span className="font-arabic text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-2 text-primary-dark dark:text-primary-light">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</span>
                     <span>Find Peace in Remembrance</span>
