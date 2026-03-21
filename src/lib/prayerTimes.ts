@@ -38,6 +38,11 @@ export interface HijriDate {
     };
 }
 
+export interface CityCountryLocation {
+    city: string;
+    country: string;
+}
+
 /**
  * Validates if the given coordinates are within valid ranges
  */
@@ -82,6 +87,43 @@ export async function getPrayerTimesByLocation(
         };
     } catch (error) {
         console.error('Error fetching prayer times:', error);
+        return null;
+    }
+}
+
+/**
+ * Fetches prayer times for a specific city and country.
+ */
+export async function getPrayerTimesByCityCountry(
+    location: CityCountryLocation,
+    date: Date = new Date()
+): Promise<{ timings: PrayerTimesData; hijri: HijriDate } | null> {
+    const city = location.city.trim();
+    const country = location.country.trim();
+
+    if (!city || !country) {
+        console.error('City/country cannot be empty:', location);
+        return null;
+    }
+
+    const dateParam = `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}`;
+
+    try {
+        const response = await fetch(
+            `https://api.aladhan.com/v1/timingsByCity/${dateParam}?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}&method=2`
+        );
+
+        if (!response.ok) {
+            throw new Error(`Aladhan API error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return {
+            timings: data.data.timings,
+            hijri: data.data.date.hijri
+        };
+    } catch (error) {
+        console.error('Error fetching prayer times by city/country:', error);
         return null;
     }
 }
