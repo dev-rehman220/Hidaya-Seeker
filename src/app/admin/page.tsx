@@ -84,6 +84,7 @@ interface FinanceData {
         paymentMethod: string;
         paymentStatus: "succeeded" | "pending" | "failed";
         transactionId: string;
+        gatewayReference?: string;
         createdAt: string;
     }[];
     pagination: {
@@ -108,6 +109,7 @@ function AdminPageInner() {
     const [finance, setFinance] = useState<FinanceData | null>(null);
     const [financeLoading, setFinanceLoading] = useState(true);
     const [financePage, setFinancePage] = useState(1);
+    const [updatingPayment, setUpdatingPayment] = useState<string | null>(null);
 
     const [content, setContent] = useState<Record<ContentType, ContentItem>>({
         ayah: { type: "ayah", arabic: "", english: "", translation: "", reference: "" },
@@ -169,6 +171,31 @@ function AdminPageInner() {
             console.error("Failed to fetch finance", error);
         } finally {
             setFinanceLoading(false);
+        }
+    };
+
+    const handleSimulateWebhook = async (transactionId: string, paymentStatus: "succeeded" | "pending" | "failed") => {
+        setUpdatingPayment(transactionId + paymentStatus);
+        try {
+            const res = await fetch("/api/admin/finance/test-webhook", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ transactionId, paymentStatus }),
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data?.message || "Failed to simulate webhook update");
+            }
+
+            setMessage({ type: "success", text: `Payment updated to ${paymentStatus} for ${transactionId}.` });
+            setTimeout(() => setMessage(null), 4000);
+            await fetchFinance(financePage);
+        } catch (error: any) {
+            setMessage({ type: "error", text: error?.message || "Failed to simulate webhook update." });
+            setTimeout(() => setMessage(null), 4000);
+        } finally {
+            setUpdatingPayment(null);
         }
     };
 
@@ -401,6 +428,8 @@ function AdminPageInner() {
                         loading={financeLoading}
                         page={financePage}
                         onPageChange={(page) => fetchFinance(page)}
+                        onSimulateWebhook={handleSimulateWebhook}
+                        updatingPayment={updatingPayment}
                     />
                 )}
             </div>
@@ -553,7 +582,21 @@ function PostsManager() {
     );
 }
 
-function FinanceManager({ finance, loading, page, onPageChange }: { finance: FinanceData | null; loading: boolean; page: number; onPageChange: (page: number) => void }) {
+function FinanceManager({
+    finance,
+    loading,
+    page,
+    onPageChange,
+    onSimulateWebhook,
+    updatingPayment,
+}: {
+    finance: FinanceData | null;
+    loading: boolean;
+    page: number;
+    onPageChange: (page: number) => void;
+    onSimulateWebhook: (transactionId: string, paymentStatus: "succeeded" | "pending" | "failed") => void;
+    updatingPayment: string | null;
+}) {
     const healthColor = (health: "healthy" | "monitor" | "critical") => {
         if (health === "healthy") return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
         if (health === "monitor") return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
@@ -634,12 +677,13 @@ function FinanceManager({ finance, loading, page, onPageChange }: { finance: Fin
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Status</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden md:table-cell">Details</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden lg:table-cell">Date</th>
+                                <th className="text-right px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Test</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {finance.recentDonations.length === 0 ? (
                                 <tr>
-                                    <td className="px-4 py-8 text-center text-sm opacity-60" colSpan={6}>No donations recorded yet.</td>
+                                    <td className="px-4 py-8 text-center text-sm opacity-60" colSpan={7}>No donations recorded yet.</td>
                                 </tr>
                             ) : finance.recentDonations.map((donation) => (
                                 <tr key={donation._id} className="hover:bg-primary/5 transition-colors">
@@ -658,6 +702,29 @@ function FinanceManager({ finance, loading, page, onPageChange }: { finance: Fin
                                     </td>
                                     <td className="px-4 py-3 text-xs opacity-70 hidden md:table-cell">{donation.cause} / {donation.donationType} / {donation.transactionId}</td>
                                     <td className="px-4 py-3 text-xs opacity-60 hidden lg:table-cell">{new Date(donation.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                                    <td className="px-4 py-3 text-right">
+                                        <div className="flex items-center justify-end gap-1">
+                                            {(["succeeded", "pending", "failed"] as const).map((status) => {
+                                                const key = donation.transactionId + status;
+                                                return (
+                                                    <button
+                                                        key={status}
+                                                        type="button"
+                                                        onClick={() => onSimulateWebhook(donation.transactionId, status)}
+                                                        disabled={updatingPayment === key}
+                                                        className={`text-[10px] font-semibold px-2 py-1 rounded-md border transition-colors ${status === "succeeded"
+                                                            ? "border-green-200 text-green-700 hover:bg-green-50 dark:border-green-800 dark:text-green-400"
+                                                            : status === "pending"
+                                                                ? "border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-800 dark:text-amber-400"
+                                                                : "border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-400"
+                                                            } disabled:opacity-50`}
+                                                    >
+                                                        {updatingPayment === key ? "..." : status}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
