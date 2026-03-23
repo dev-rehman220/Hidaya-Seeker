@@ -59,7 +59,7 @@ export async function GET(req: Request) {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
-                .select("donorName amount currency currencySymbol cause donationType paymentMethod paymentStatus transactionId createdAt")
+                .select("donorName amount currency currencySymbol cause donationType paymentMethod paymentStatus transactionId gatewayReference createdAt updatedAt")
                 .lean(),
             Donation.aggregate([
                 {
