@@ -14,9 +14,9 @@ function parseWebhookPayload(rawBody: string) {
     } catch {
         const form = new URLSearchParams(rawBody);
         const parsed: Record<string, string> = {};
-        for (const [key, value] of form.entries()) {
+        form.forEach((value, key) => {
             parsed[key] = value;
-        }
+        });
         return parsed;
     }
 }
