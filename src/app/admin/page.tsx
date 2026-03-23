@@ -82,7 +82,7 @@ interface FinanceData {
         cause: string;
         donationType: string;
         paymentMethod: string;
-        provider?: "payfast" | "twocheckout" | "manual";
+        provider?: "jazzcash" | "manual";
         paymentStatus: "succeeded" | "pending" | "failed";
         transactionId: string;
         gatewayReference?: string;
