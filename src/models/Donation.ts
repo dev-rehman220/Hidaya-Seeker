@@ -49,7 +49,7 @@ const DonationSchema = new Schema({
     },
     provider: {
         type: String,
-        enum: ["payfast", "twocheckout", "manual"],
+        enum: ["jazzcash", "manual"],
         default: "manual",
     },
     paymentStatus: {
