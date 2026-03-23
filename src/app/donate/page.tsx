@@ -13,7 +13,7 @@ interface CurrencyInfo {
     presets: number[];
 }
 
-type PaymentProvider = "payfast" | "twocheckout";
+type PaymentProvider = "jazzcash";
 
 const ALL_COUNTRIES: { code: string; name: string; flag: string; currency: string }[] = [
     { code: "US", name: "United States", flag: "🇺🇸", currency: "USD" },
@@ -201,7 +201,7 @@ export default function DonatePage() {
                         </p>
                         {selectedProvider && (
                             <p className="text-xs opacity-60">
-                                Routed via {selectedProvider === "payfast" ? "PayFast (Pakistan)" : "2Checkout (International)"}
+                                Routed via JazzCash
                             </p>
                         )}
                     </div>
@@ -457,7 +457,7 @@ export default function DonatePage() {
                                         )}
                                     </button>
                                     <p className="col-span-2 text-center text-xs opacity-60 mt-4 flex items-center justify-center gap-1">
-                                        <Lock className="w-3 h-3" /> Secure payment routed by PayFast (Pakistan) or 2Checkout (International)
+                                        <Lock className="w-3 h-3" /> Secure payment routed via JazzCash
                                     </p>
                                 </div>
 
