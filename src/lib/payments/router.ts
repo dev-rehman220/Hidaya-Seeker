@@ -1,3 +1,5 @@
+import { buildJazzCashCheckoutPayload, buildJazzCashCheckoutQueryUrl } from "@/lib/payments/jazzcash";
+
 export type PaymentProvider = "jazzcash";
 export type PaymentStatus = "pending" | "succeeded" | "failed";
 
@@ -19,6 +21,7 @@ export interface PaymentIntentResult {
     paymentStatus: PaymentStatus;
     checkoutUrl: string;
     gatewayReference: string;
+    checkoutFields?: Record<string, string>;
 }
 
 interface PaymentGateway {
@@ -33,11 +36,17 @@ function makeId(prefix: string) {
 function createJazzCashIntent(input: CreatePaymentIntentInput): PaymentIntentResult {
     const transactionId = makeId("JC");
     const gatewayReference = `jazzcash-${transactionId}`;
-
-    const baseCheckoutUrl = process.env.JAZZCASH_CHECKOUT_URL || `${input.siteUrl}/donate`;
-    const checkoutUrl = `${baseCheckoutUrl}?provider=jazzcash&txn=${encodeURIComponent(transactionId)}&amount=${encodeURIComponent(
-        String(input.amount)
-    )}&currency=${encodeURIComponent(input.currency)}&country=${encodeURIComponent(input.country)}`;
+    const checkoutPayload = buildJazzCashCheckoutPayload({
+        transactionId,
+        amount: input.amount,
+        currency: input.currency,
+        country: input.country,
+        cause: input.cause,
+        donationType: input.donationType,
+        paymentMethod: input.paymentMethod,
+        siteUrl: input.siteUrl,
+    });
+    const checkoutUrl = buildJazzCashCheckoutQueryUrl(checkoutPayload.checkoutUrl, checkoutPayload.params);
 
     return {
         provider: "jazzcash",
@@ -45,6 +54,7 @@ function createJazzCashIntent(input: CreatePaymentIntentInput): PaymentIntentRes
         paymentStatus: "pending",
         checkoutUrl,
         gatewayReference,
+        checkoutFields: checkoutPayload.params,
     };
 }
 
