@@ -1,32 +1,38 @@
 import { NextResponse } from "next/server";
 
 import dbConnect from "@/lib/mongodb";
+import { parseJazzCashPaymentStatus, verifyJazzCashWebhook } from "@/lib/payments/jazzcash";
 import Donation from "@/models/Donation";
 
 export const dynamic = "force-dynamic";
 
-const VALID_PAYMENT_STATUS = new Set(["succeeded", "pending", "failed"]);
-
 export async function POST(req: Request) {
     try {
-        const configuredSecret = process.env.JAZZCASH_WEBHOOK_SECRET || process.env.PAYMENT_WEBHOOK_SECRET;
-        const incomingSecret = req.headers.get("x-webhook-secret") || "";
+        const rawBody = await req.text();
+        const body = rawBody ? JSON.parse(rawBody) : {};
 
-        if (configuredSecret && incomingSecret !== configuredSecret) {
-            return NextResponse.json({ message: "Unauthorized webhook" }, { status: 401 });
+        const verification = verifyJazzCashWebhook({
+            payload: body,
+            rawBody,
+            signatureHeader:
+                req.headers.get("x-jazzcash-signature") ||
+                req.headers.get("x-webhook-signature") ||
+                req.headers.get("x-webhook-secret") ||
+                "",
+            webhookSecret: process.env.JAZZCASH_WEBHOOK_SECRET || process.env.PAYMENT_WEBHOOK_SECRET,
+            integritySalt: process.env.JAZZCASH_INTEGRITY_SALT,
+        });
+
+        if (!verification.isValid) {
+            return NextResponse.json({ message: verification.reason || "Unauthorized webhook" }, { status: 401 });
         }
 
-        const body = await req.json();
-        const transactionId = String(body?.transactionId || "").trim();
-        const paymentStatus = String(body?.paymentStatus || "").trim();
-        const gatewayReference = String(body?.gatewayReference || "").trim();
+        const transactionId = String(body?.transactionId || body?.pp_TxnRefNo || "").trim();
+        const paymentStatus = parseJazzCashPaymentStatus(body);
+        const gatewayReference = String(body?.gatewayReference || body?.pp_RetreivalReferenceNo || body?.pp_TxnRefNo || "").trim();
 
         if (!transactionId) {
             return NextResponse.json({ message: "transactionId is required" }, { status: 400 });
-        }
-
-        if (!VALID_PAYMENT_STATUS.has(paymentStatus)) {
-            return NextResponse.json({ message: "Invalid paymentStatus" }, { status: 400 });
         }
 
         await dbConnect();
