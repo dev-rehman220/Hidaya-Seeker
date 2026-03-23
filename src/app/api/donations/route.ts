@@ -11,7 +11,7 @@ const VALID_CAUSES = new Set(["general", "zakat", "sadaqah"]);
 const VALID_DONATION_TYPES = new Set(["one-time", "monthly"]);
 const VALID_PAYMENT_METHODS = new Set(["card", "bank", "wallet"]);
 const VALID_PAYMENT_STATUS = new Set(["succeeded", "pending", "failed"]);
-const VALID_PROVIDERS = new Set(["payfast", "twocheckout", "manual"]);
+const VALID_PROVIDERS = new Set(["jazzcash", "manual"]);
 
 function toUsd(amount: number, rate: number) {
     if (!Number.isFinite(rate) || rate <= 0) return amount;
