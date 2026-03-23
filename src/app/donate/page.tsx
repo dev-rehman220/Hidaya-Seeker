@@ -13,6 +13,8 @@ interface CurrencyInfo {
     presets: number[];
 }
 
+type PaymentProvider = "payfast" | "twocheckout";
+
 const ALL_COUNTRIES: { code: string; name: string; flag: string; currency: string }[] = [
     { code: "US", name: "United States", flag: "🇺🇸", currency: "USD" },
     { code: "GB", name: "United Kingdom", flag: "🇬🇧", currency: "GBP" },
@@ -64,6 +66,8 @@ export default function DonatePage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
+    const [selectedProvider, setSelectedProvider] = useState<PaymentProvider | null>(null);
+    const [paymentStatus, setPaymentStatus] = useState<"pending" | "succeeded" | "failed">("pending");
 
     useEffect(() => {
         fetch("/api/currency")
@@ -111,7 +115,33 @@ export default function DonatePage() {
         }
 
         try {
-            const simulatedStatus = paymentMethod === "bank" ? "pending" : "succeeded";
+            const intentRes = await fetch("/api/payments/create-intent", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    amount: numericAmount,
+                    currency: currency.code,
+                    country: currency.country,
+                    cause,
+                    donationType,
+                    paymentMethod,
+                    donorName: donorName.trim() || "Anonymous",
+                    donorEmail: donorEmail.trim(),
+                }),
+            });
+
+            const intentData = await intentRes.json().catch(() => ({}));
+            if (!intentRes.ok || !intentData?.intent) {
+                throw new Error(intentData?.message || "Failed to initialize payment");
+            }
+
+            const intent = intentData.intent as {
+                provider: PaymentProvider;
+                transactionId: string;
+                paymentStatus: "pending" | "succeeded" | "failed";
+                checkoutUrl?: string;
+                gatewayReference?: string;
+            };
 
             const res = await fetch("/api/donations", {
                 method: "POST",
@@ -126,7 +156,10 @@ export default function DonatePage() {
                     cause,
                     donationType,
                     paymentMethod,
-                    paymentStatus: simulatedStatus,
+                    provider: intent.provider,
+                    transactionId: intent.transactionId,
+                    gatewayReference: intent.gatewayReference || "",
+                    paymentStatus: intent.paymentStatus,
                     country: currency.country,
                 }),
             });
@@ -136,6 +169,8 @@ export default function DonatePage() {
                 throw new Error(data?.message || "Failed to process donation");
             }
 
+            setSelectedProvider(intent.provider);
+            setPaymentStatus(intent.paymentStatus);
             setSuccess(true);
         } catch (err: any) {
             setError(err?.message || "Donation failed. Please try again.");
@@ -158,10 +193,20 @@ export default function DonatePage() {
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-primary dark:text-primary-light mb-2">JazakAllah Khayran!</h2>
-                        <p className="text-neutral-dark/70 dark:text-neutral-light/70">Your donation of <strong>{displayAmount}</strong> has been received. May Allah accept it as Sadaqah Jariyah.</p>
+                        <p className="text-neutral-dark/70 dark:text-neutral-light/70">
+                            {paymentStatus === "pending"
+                                ? <>Your donation of <strong>{displayAmount}</strong> has been initiated and is pending confirmation.</>
+                                : <>Your donation of <strong>{displayAmount}</strong> has been received.</>}
+                            {" "}May Allah accept it as Sadaqah Jariyah.
+                        </p>
+                        {selectedProvider && (
+                            <p className="text-xs opacity-60">
+                                Routed via {selectedProvider === "payfast" ? "PayFast (Pakistan)" : "2Checkout (International)"}
+                            </p>
+                        )}
                     </div>
                     <p className="font-arabic text-xl text-secondary" dir="rtl">اللَّهُمَّ تَقَبَّلْ مِنَّا</p>
-                    <button onClick={() => { setSuccess(false); setAmount(currency.presets[2]); setCustomAmount(""); setError(""); }} className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors">
+                    <button onClick={() => { setSuccess(false); setAmount(currency.presets[2]); setCustomAmount(""); setError(""); setSelectedProvider(null); }} className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors">
                         Donate Again
                     </button>
                 </div>
@@ -412,7 +457,7 @@ export default function DonatePage() {
                                         )}
                                     </button>
                                     <p className="col-span-2 text-center text-xs opacity-60 mt-4 flex items-center justify-center gap-1">
-                                        <Lock className="w-3 h-3" /> Secure payment powered by Stripe
+                                        <Lock className="w-3 h-3" /> Secure payment routed by PayFast (Pakistan) or 2Checkout (International)
                                     </p>
                                 </div>
 

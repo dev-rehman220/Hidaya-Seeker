@@ -47,6 +47,11 @@ const DonationSchema = new Schema({
         enum: ["card", "bank", "wallet"],
         default: "card",
     },
+    provider: {
+        type: String,
+        enum: ["payfast", "twocheckout", "manual"],
+        default: "manual",
+    },
     paymentStatus: {
         type: String,
         enum: ["succeeded", "pending", "failed"],
@@ -93,6 +98,7 @@ DonationSchema.pre("save", function (next) {
 
 DonationSchema.index({ createdAt: -1 });
 DonationSchema.index({ paymentMethod: 1, paymentStatus: 1 });
+DonationSchema.index({ provider: 1, createdAt: -1 });
 
 const Donation = models.Donation || model("Donation", DonationSchema);
 

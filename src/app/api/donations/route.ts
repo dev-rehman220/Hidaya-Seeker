@@ -11,6 +11,7 @@ const VALID_CAUSES = new Set(["general", "zakat", "sadaqah"]);
 const VALID_DONATION_TYPES = new Set(["one-time", "monthly"]);
 const VALID_PAYMENT_METHODS = new Set(["card", "bank", "wallet"]);
 const VALID_PAYMENT_STATUS = new Set(["succeeded", "pending", "failed"]);
+const VALID_PROVIDERS = new Set(["payfast", "twocheckout", "manual"]);
 
 function toUsd(amount: number, rate: number) {
     if (!Number.isFinite(rate) || rate <= 0) return amount;
@@ -32,6 +33,9 @@ export async function POST(req: Request) {
         const donationType = String(data?.donationType || "one-time");
         const paymentMethod = String(data?.paymentMethod || "card");
         const paymentStatus = String(data?.paymentStatus || "succeeded");
+        const provider = String(data?.provider || "manual");
+        const transactionId = String(data?.transactionId || "").trim() || makeTransactionId();
+        const gatewayReference = String(data?.gatewayReference || "").trim();
 
         if (!Number.isFinite(amount) || amount <= 0) {
             return NextResponse.json({ message: "Invalid donation amount" }, { status: 400 });
@@ -53,6 +57,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "Invalid payment status" }, { status: 400 });
         }
 
+        if (!VALID_PROVIDERS.has(provider)) {
+            return NextResponse.json({ message: "Invalid payment provider" }, { status: 400 });
+        }
+
         await dbConnect();
 
         const created = await Donation.create({
@@ -65,8 +73,10 @@ export async function POST(req: Request) {
             cause,
             donationType,
             paymentMethod,
+            provider,
             paymentStatus,
-            transactionId: makeTransactionId(),
+            transactionId,
+            gatewayReference,
             meta: {
                 country: String(data?.country || "").toUpperCase(),
                 source: "donate-page",
@@ -75,6 +85,9 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true, donation: created }, { status: 201 });
     } catch (error) {
+        if ((error as any)?.code === 11000) {
+            return NextResponse.json({ message: "Duplicate transaction ID" }, { status: 409 });
+        }
         console.error("Donations POST Error:", error);
         return NextResponse.json({ message: "Failed to record donation" }, { status: 500 });
     }

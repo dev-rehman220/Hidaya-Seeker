@@ -82,6 +82,7 @@ interface FinanceData {
         cause: string;
         donationType: string;
         paymentMethod: string;
+        provider?: "payfast" | "twocheckout" | "manual";
         paymentStatus: "succeeded" | "pending" | "failed";
         transactionId: string;
         gatewayReference?: string;
@@ -702,7 +703,7 @@ function FinanceManager({
                                             {donation.paymentStatus}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-xs opacity-70 hidden md:table-cell">{donation.cause} / {donation.donationType} / {donation.transactionId}</td>
+                                    <td className="px-4 py-3 text-xs opacity-70 hidden md:table-cell">{donation.cause} / {donation.donationType} / {donation.provider || "manual"} / {donation.transactionId}</td>
                                     <td className="px-4 py-3 text-xs opacity-60 hidden lg:table-cell">{new Date(donation.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
                                     <td className="px-4 py-3 text-xs opacity-60 hidden lg:table-cell">
                                         {new Date(donation.updatedAt || donation.createdAt).toLocaleString("en-US", {
