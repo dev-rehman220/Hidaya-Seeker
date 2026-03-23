@@ -6,10 +6,25 @@ import Donation from "@/models/Donation";
 
 export const dynamic = "force-dynamic";
 
+function parseWebhookPayload(rawBody: string) {
+    if (!rawBody.trim()) return {};
+
+    try {
+        return JSON.parse(rawBody) as Record<string, unknown>;
+    } catch {
+        const form = new URLSearchParams(rawBody);
+        const parsed: Record<string, string> = {};
+        for (const [key, value] of form.entries()) {
+            parsed[key] = value;
+        }
+        return parsed;
+    }
+}
+
 export async function POST(req: Request) {
     try {
         const rawBody = await req.text();
-        const body = rawBody ? JSON.parse(rawBody) : {};
+        const body = parseWebhookPayload(rawBody);
 
         const verification = verifyJazzCashWebhook({
             payload: body,
@@ -29,7 +44,9 @@ export async function POST(req: Request) {
 
         const transactionId = String(body?.transactionId || body?.pp_TxnRefNo || "").trim();
         const paymentStatus = parseJazzCashPaymentStatus(body);
-        const gatewayReference = String(body?.gatewayReference || body?.pp_RetreivalReferenceNo || body?.pp_TxnRefNo || "").trim();
+        const gatewayReference = String(
+            body?.gatewayReference || body?.pp_RetreivalReferenceNo || body?.pp_RetrievalReferenceNo || body?.pp_TxnRefNo || ""
+        ).trim();
 
         if (!transactionId) {
             return NextResponse.json({ message: "transactionId is required" }, { status: 400 });
