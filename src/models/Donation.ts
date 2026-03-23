@@ -58,6 +58,11 @@ const DonationSchema = new Schema({
         unique: true,
         trim: true,
     },
+    gatewayReference: {
+        type: String,
+        default: "",
+        trim: true,
+    },
     meta: {
         country: {
             type: String,
@@ -75,6 +80,15 @@ const DonationSchema = new Schema({
         type: Date,
         default: Date.now,
     },
+    updatedAt: {
+        type: Date,
+        default: Date.now,
+    },
+});
+
+DonationSchema.pre("save", function (next) {
+    this.updatedAt = new Date();
+    next();
 });
 
 DonationSchema.index({ createdAt: -1 });
