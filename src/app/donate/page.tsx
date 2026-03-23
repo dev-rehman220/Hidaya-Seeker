@@ -169,6 +169,11 @@ export default function DonatePage() {
                 throw new Error(data?.message || "Failed to process donation");
             }
 
+            if (intent.checkoutUrl) {
+                window.location.href = intent.checkoutUrl;
+                return;
+            }
+
             setSelectedProvider(intent.provider);
             setPaymentStatus(intent.paymentStatus);
             setSuccess(true);
