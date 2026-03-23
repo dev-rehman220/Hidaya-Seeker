@@ -15,8 +15,13 @@ function getHealthLabel(successRate: number) {
     return "critical";
 }
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
+        const { searchParams } = new URL(req.url);
+        const page = Math.max(1, Number(searchParams.get("page") || 1));
+        const limit = Math.min(100, Math.max(5, Number(searchParams.get("limit") || 20)));
+        const skip = (page - 1) * limit;
+
         const session = await getServerSession(authOptions);
 
         if (!session || (session.user as any)?.role !== "admin") {
@@ -52,7 +57,8 @@ export async function GET() {
             ]),
             Donation.find({})
                 .sort({ createdAt: -1 })
-                .limit(20)
+                .skip(skip)
+                .limit(limit)
                 .select("donorName amount currency currencySymbol cause donationType paymentMethod paymentStatus transactionId createdAt")
                 .lean(),
             Donation.aggregate([
@@ -117,11 +123,13 @@ export async function GET() {
         });
 
         const overallSuccessRate = summary.totalRecords > 0 ? summary.succeeded / summary.totalRecords : 1;
+        const totalRecords = Number(summary.totalRecords || 0);
+        const totalPages = Math.max(1, Math.ceil(totalRecords / limit));
 
         return NextResponse.json({
             totals: {
                 totalDonationsUsd: Number(summary.totalDonationsUsd || 0),
-                totalRecords: Number(summary.totalRecords || 0),
+                totalRecords,
                 succeeded: Number(summary.succeeded || 0),
                 pending: Number(summary.pending || 0),
                 failed: Number(summary.failed || 0),
@@ -130,6 +138,13 @@ export async function GET() {
             },
             methods,
             recentDonations,
+            pagination: {
+                page,
+                limit,
+                totalPages,
+                hasPrev: page > 1,
+                hasNext: page < totalPages,
+            },
         });
     } catch (error) {
         console.error("Admin Finance GET Error:", error);
