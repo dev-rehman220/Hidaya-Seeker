@@ -28,6 +28,9 @@ import {
     ShieldCheck,
     AlertTriangle,
     Image as ImageIcon,
+    Download,
+    ChevronLeft,
+    ChevronRight as ChevronRightIcon,
 } from "lucide-react";
 import { Suspense } from "react";
 
@@ -83,6 +86,13 @@ interface FinanceData {
         transactionId: string;
         createdAt: string;
     }[];
+    pagination: {
+        page: number;
+        limit: number;
+        totalPages: number;
+        hasPrev: boolean;
+        hasNext: boolean;
+    };
 }
 
 function AdminPageInner() {
@@ -97,6 +107,7 @@ function AdminPageInner() {
     const [stats, setStats] = useState<Stats | null>(null);
     const [finance, setFinance] = useState<FinanceData | null>(null);
     const [financeLoading, setFinanceLoading] = useState(true);
+    const [financePage, setFinancePage] = useState(1);
 
     const [content, setContent] = useState<Record<ContentType, ContentItem>>({
         ayah: { type: "ayah", arabic: "", english: "", translation: "", reference: "" },
@@ -113,7 +124,7 @@ function AdminPageInner() {
                 router.push("/");
                 return;
             }
-            Promise.all([fetchContent(), fetchStats(), fetchFinance()]).finally(() => setLoading(false));
+            Promise.all([fetchContent(), fetchStats(), fetchFinance(1)]).finally(() => setLoading(false));
         }
     }, [status, session]);
 
@@ -145,13 +156,14 @@ function AdminPageInner() {
         }
     };
 
-    const fetchFinance = async () => {
+    const fetchFinance = async (page = 1) => {
         setFinanceLoading(true);
         try {
-            const res = await fetch("/api/admin/finance");
+            const res = await fetch(`/api/admin/finance?page=${page}&limit=10`);
             if (res.ok) {
                 const data = await res.json();
                 setFinance(data);
+                setFinancePage(data?.pagination?.page || page);
             }
         } catch (error) {
             console.error("Failed to fetch finance", error);
@@ -383,7 +395,14 @@ function AdminPageInner() {
                 {activeTab === "posts" && <PostsManager />}
 
                 {/* TAB: FINANCE */}
-                {activeTab === "finance" && <FinanceManager finance={finance} loading={financeLoading} />}
+                {activeTab === "finance" && (
+                    <FinanceManager
+                        finance={finance}
+                        loading={financeLoading}
+                        page={financePage}
+                        onPageChange={(page) => fetchFinance(page)}
+                    />
+                )}
             </div>
         </div>
     );
@@ -534,7 +553,7 @@ function PostsManager() {
     );
 }
 
-function FinanceManager({ finance, loading }: { finance: FinanceData | null; loading: boolean }) {
+function FinanceManager({ finance, loading, page, onPageChange }: { finance: FinanceData | null; loading: boolean; page: number; onPageChange: (page: number) => void }) {
     const healthColor = (health: "healthy" | "monitor" | "critical") => {
         if (health === "healthy") return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
         if (health === "monitor") return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
@@ -592,9 +611,18 @@ function FinanceManager({ finance, loading }: { finance: FinanceData | null; loa
             <div className="bg-white dark:bg-neutral-dark rounded-2xl border border-primary/10 shadow-sm overflow-hidden">
                 <div className="bg-primary/5 px-6 py-4 border-b border-primary/10 flex items-center justify-between">
                     <h2 className="font-bold text-primary dark:text-primary-light text-lg">Recent Donations</h2>
-                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${healthColor(finance.totals.overallHealth)}`}>
-                        Overall: {(finance.totals.overallSuccessRate * 100).toFixed(1)}%
-                    </span>
+                    <div className="flex items-center gap-2">
+                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${healthColor(finance.totals.overallHealth)}`}>
+                            Overall: {(finance.totals.overallSuccessRate * 100).toFixed(1)}%
+                        </span>
+                        <a
+                            href="/api/admin/finance/export"
+                            className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg bg-white dark:bg-neutral-dark border border-primary/20 hover:bg-primary/5"
+                        >
+                            <Download className="w-3 h-3" />
+                            Export CSV
+                        </a>
+                    </div>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full">
@@ -634,6 +662,27 @@ function FinanceManager({ finance, loading }: { finance: FinanceData | null; loa
                             ))}
                         </tbody>
                     </table>
+                </div>
+                <div className="px-4 py-3 border-t border-primary/10 bg-primary/5 flex items-center justify-between">
+                    <p className="text-xs opacity-60">Page {finance.pagination.page} of {finance.pagination.totalPages}</p>
+                    <div className="flex items-center gap-2">
+                        <button
+                            type="button"
+                            onClick={() => onPageChange(page - 1)}
+                            disabled={!finance.pagination.hasPrev}
+                            className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg border border-primary/20 disabled:opacity-40"
+                        >
+                            <ChevronLeft className="w-3 h-3" /> Prev
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => onPageChange(page + 1)}
+                            disabled={!finance.pagination.hasNext}
+                            className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg border border-primary/20 disabled:opacity-40"
+                        >
+                            Next <ChevronRightIcon className="w-3 h-3" />
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
