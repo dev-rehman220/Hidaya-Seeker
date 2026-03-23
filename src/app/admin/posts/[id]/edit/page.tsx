@@ -18,6 +18,23 @@ import {
 
 const CATEGORIES = ["general", "reminder", "quran", "hadith", "dua", "announcement"] as const;
 
+async function compressImageToDataUrl(file: File, maxWidth = 1280, quality = 0.82): Promise<string> {
+    const imageBitmap = await createImageBitmap(file);
+    const scale = Math.min(1, maxWidth / imageBitmap.width);
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(imageBitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(imageBitmap.height * scale));
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+        throw new Error("Canvas is not available");
+    }
+
+    ctx.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
+    imageBitmap.close();
+    return canvas.toDataURL("image/jpeg", quality);
+}
+
 export default function EditPostPage() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -88,13 +105,12 @@ export default function EditPostPage() {
             return;
         }
 
-        const reader = new FileReader();
-        reader.onload = () => {
-            const dataUrl = String(reader.result || "");
+        try {
+            const dataUrl = await compressImageToDataUrl(file);
             setForm((prev) => ({ ...prev, mediaUrl: dataUrl, thumbnail: dataUrl, videoUrl: "" }));
-        };
-        reader.onerror = () => setMessage({ type: "error", text: "Failed to read image file." });
-        reader.readAsDataURL(file);
+        } catch {
+            setMessage({ type: "error", text: "Failed to process image file." });
+        }
     };
 
     const handleSubmit = async (publishStatus: "draft" | "published") => {
