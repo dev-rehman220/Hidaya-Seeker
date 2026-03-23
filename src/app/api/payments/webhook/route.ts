@@ -9,7 +9,7 @@ const VALID_PAYMENT_STATUS = new Set(["succeeded", "pending", "failed"]);
 
 export async function POST(req: Request) {
     try {
-        const configuredSecret = process.env.PAYMENT_WEBHOOK_SECRET;
+        const configuredSecret = process.env.JAZZCASH_WEBHOOK_SECRET || process.env.PAYMENT_WEBHOOK_SECRET;
         const incomingSecret = req.headers.get("x-webhook-secret") || "";
 
         if (configuredSecret && incomingSecret !== configuredSecret) {
