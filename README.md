@@ -13,7 +13,7 @@ A modern full-stack Islamic web application built with **Next.js 14**, **MongoDB
 | 📰 **Posts & Videos** | Blog-style posts and YouTube-embedded video posts |
 | 🕌 **Islamic Tools** | Prayer times (by GPS), Qibla direction, Zakat calculator |
 | 📅 **Hijri Calendar** | Gregorian ↔ Hijri date converter via Aladhan API |
-| 💚 **Donate Page** | Multi-currency donation UI with IP-based currency detection |
+| 💚 **Donate Page** | Multi-currency donation UI with IP-based currency detection and JazzCash payment routing |
 | 🔐 **Auth System** | Register, login, forgot password (email reset), account settings |
 | 🛡️ **Admin Dashboard** | Full CMS: manage daily content, create/edit/delete/publish posts |
 | 🌗 **Dark / Light Mode** | System-aware with manual toggle |
@@ -79,6 +79,10 @@ Open [http://localhost:3000](http://localhost:3000).
 | `EMAIL_SERVER_USER` | ✅ | SMTP username / Gmail address |
 | `EMAIL_SERVER_PASSWORD` | ✅ | SMTP password / Gmail App Password |
 | `EMAIL_FROM` | ✅ | From name + address for emails |
+| `PAYMENT_PROVIDER` | ⚠️ | Payment gateway key. Default: `jazzcash` |
+| `JAZZCASH_CHECKOUT_URL` | ⚠️ | JazzCash checkout endpoint URL |
+| `PAYMENT_WEBHOOK_SECRET` | ⚠️ | Shared secret to protect payment webhook route |
+| `JAZZCASH_WEBHOOK_SECRET` | ⚠️ | JazzCash-specific webhook secret (overrides `PAYMENT_WEBHOOK_SECRET`) |
 
 > Generate `NEXTAUTH_SECRET`:  
 > `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
