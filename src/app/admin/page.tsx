@@ -86,6 +86,7 @@ interface FinanceData {
         transactionId: string;
         gatewayReference?: string;
         createdAt: string;
+        updatedAt?: string;
     }[];
     pagination: {
         page: number;
@@ -677,13 +678,14 @@ function FinanceManager({
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Status</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden md:table-cell">Details</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden lg:table-cell">Date</th>
+                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden lg:table-cell">Last Update</th>
                                 <th className="text-right px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Test</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {finance.recentDonations.length === 0 ? (
                                 <tr>
-                                    <td className="px-4 py-8 text-center text-sm opacity-60" colSpan={7}>No donations recorded yet.</td>
+                                    <td className="px-4 py-8 text-center text-sm opacity-60" colSpan={8}>No donations recorded yet.</td>
                                 </tr>
                             ) : finance.recentDonations.map((donation) => (
                                 <tr key={donation._id} className="hover:bg-primary/5 transition-colors">
@@ -702,6 +704,15 @@ function FinanceManager({
                                     </td>
                                     <td className="px-4 py-3 text-xs opacity-70 hidden md:table-cell">{donation.cause} / {donation.donationType} / {donation.transactionId}</td>
                                     <td className="px-4 py-3 text-xs opacity-60 hidden lg:table-cell">{new Date(donation.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                                    <td className="px-4 py-3 text-xs opacity-60 hidden lg:table-cell">
+                                        {new Date(donation.updatedAt || donation.createdAt).toLocaleString("en-US", {
+                                            month: "short",
+                                            day: "numeric",
+                                            year: "numeric",
+                                            hour: "2-digit",
+                                            minute: "2-digit",
+                                        })}
+                                    </td>
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             {(["succeeded", "pending", "failed"] as const).map((status) => {
