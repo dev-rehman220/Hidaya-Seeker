@@ -378,15 +378,19 @@ export default function ToolsPage() {
                         </div>
 
                         {/* Qibla Finder Card */}
-                        <div className="bg-white dark:bg-neutral-dark p-6 rounded-2xl shadow-sm border border-primary/10 flex flex-col items-center justify-center text-center py-10">
-                            <div className="relative mb-6">
-                                <Compass className="w-16 h-16 text-neutral-300 dark:text-neutral-700" />
+                        <div className="bg-white dark:bg-neutral-dark p-6 rounded-2xl shadow-sm border border-primary/10 flex flex-col items-center justify-center text-center min-h-[360px]">
+                            <div className="relative w-56 h-56 mb-6 grid place-items-center">
+                                <div className="absolute inset-0 rounded-full border-2 border-primary/15" />
+                                <div className="absolute inset-3 rounded-full border border-primary/10" />
+                                <div className="absolute top-3 text-xs font-semibold tracking-wide text-primary/80">N</div>
+                                <Compass className="w-20 h-20 text-neutral-300 dark:text-neutral-700" />
                                 <div
                                     className="absolute inset-0 flex items-center justify-center transition-transform duration-1000 ease-out"
-                                    style={{ transform: qiblaDirection !== null ? `rotate(${qiblaDirection}deg)` : 'none' }}
+                                    style={{ transform: qiblaDirection !== null ? `rotate(${qiblaDirection}deg)` : "none" }}
                                 >
-                                    <div className="w-1 h-12 bg-secondary rounded-full transform -translate-y-4 shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
+                                    <div className="w-1 h-24 bg-secondary rounded-full origin-bottom -translate-y-8 shadow-[0_0_10px_rgba(212,175,55,0.8)]" />
                                 </div>
+                                <div className="absolute w-3 h-3 rounded-full bg-primary" />
                             </div>
                             <h3 className="text-xl font-bold text-primary dark:text-primary-light mb-2">Qibla Direction</h3>
 

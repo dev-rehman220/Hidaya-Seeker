@@ -32,7 +32,7 @@ export async function POST(req: Request) {
         }
 
         const data = await req.json();
-        const { title, type, content, videoUrl, thumbnail, category, status } = data;
+        const { title, type, content, videoUrl, mediaUrl, thumbnail, category, status } = data;
 
         if (!title || !content) {
             return NextResponse.json({ message: 'Title and content are required' }, { status: 400 });
@@ -42,6 +42,10 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: 'Video URL is required for video posts' }, { status: 400 });
         }
 
+        if (type === 'image' && !mediaUrl && !thumbnail) {
+            return NextResponse.json({ message: 'Image is required for image posts' }, { status: 400 });
+        }
+
         await dbConnect();
 
         const post = await Post.create({
@@ -49,6 +53,7 @@ export async function POST(req: Request) {
             type: type || 'post',
             content,
             videoUrl: videoUrl || '',
+            mediaUrl: mediaUrl || '',
             thumbnail: thumbnail || '',
             category: category || 'general',
             status: status || 'draft',

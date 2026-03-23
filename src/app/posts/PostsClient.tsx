@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FileText, Video, RefreshCw, Search } from "lucide-react";
+import { FileText, Video, RefreshCw, Search, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
 
 interface Post {
     _id: string;
     title: string;
-    type: "post" | "video";
+    type: "post" | "image" | "video";
     content: string;
     videoUrl?: string;
+    mediaUrl?: string;
     thumbnail?: string;
     category: string;
     author: string;
@@ -47,14 +48,15 @@ function PostCard({ post }: { post: Post }) {
     const [imageError, setImageError] = useState(false);
     const isLong = post.content.length > 300;
     const embedUrl = post.type === "video" && post.videoUrl ? getYouTubeEmbedUrl(post.videoUrl) : null;
+    const imageSource = post.mediaUrl || post.thumbnail;
 
     return (
         <div className="bg-white dark:bg-neutral-dark rounded-2xl border border-primary/10 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-            {/* Thumbnail for text posts */}
-            {post.type === "post" && post.thumbnail && !imageError && (
+            {/* Visual media for image/text posts */}
+            {(post.type === "image" || post.type === "post") && imageSource && !imageError && (
                 <div className="relative aspect-video w-full overflow-hidden bg-primary/5">
                     <Image
-                        src={post.thumbnail}
+                        src={imageSource}
                         alt={post.title}
                         fill
                         sizes="(min-width: 768px) 50vw, 100vw"
@@ -97,10 +99,12 @@ function PostCard({ post }: { post: Post }) {
                 <div className="flex items-center gap-2 flex-wrap">
                     <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${post.type === "video"
                         ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                        : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                        : post.type === "image"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                         }`}>
-                        {post.type === "video" ? <Video className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
-                        {post.type === "video" ? "Video" : "Post"}
+                        {post.type === "video" ? <Video className="w-3 h-3" /> : post.type === "image" ? <ImageIcon className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
+                        {post.type === "video" ? "Video" : post.type === "image" ? "Image" : "Post"}
                     </span>
                     <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary dark:text-primary-light capitalize">
                         {CATEGORY_LABELS[post.category] || post.category}
@@ -159,7 +163,7 @@ export default function PostsClient() {
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState("");
-    const [filterType, setFilterType] = useState<"all" | "post" | "video">("all");
+    const [filterType, setFilterType] = useState<"all" | "post" | "image" | "video">("all");
     const [filterCategory, setFilterCategory] = useState("all");
 
     useEffect(() => {
@@ -209,7 +213,7 @@ export default function PostsClient() {
 
                     {/* Type filter */}
                     <div className="flex gap-1 bg-white dark:bg-neutral-dark rounded-xl p-1 border border-primary/10">
-                        {(["all", "post", "video"] as const).map((t) => (
+                        {(["all", "post", "image", "video"] as const).map((t) => (
                             <button
                                 key={t}
                                 onClick={() => setFilterType(t)}
@@ -218,7 +222,7 @@ export default function PostsClient() {
                                     : "hover:bg-primary/5 text-neutral-dark/70 dark:text-neutral-light/70"
                                     }`}
                             >
-                                {t === "all" ? "All" : t === "post" ? "Posts" : "Videos"}
+                                {t === "all" ? "All" : t === "post" ? "Posts" : t === "image" ? "Images" : "Videos"}
                             </button>
                         ))}
                     </div>

@@ -24,6 +24,10 @@ import {
     PlusCircle,
     Newspaper,
     ChevronRight,
+    Wallet,
+    ShieldCheck,
+    AlertTriangle,
+    Image as ImageIcon,
 } from "lucide-react";
 import { Suspense } from "react";
 
@@ -47,6 +51,40 @@ interface Stats {
     recentPosts: { _id: string; title: string; type: string; status: string; createdAt: string }[];
 }
 
+interface FinanceData {
+    totals: {
+        totalDonationsUsd: number;
+        totalRecords: number;
+        succeeded: number;
+        pending: number;
+        failed: number;
+        overallSuccessRate: number;
+        overallHealth: "healthy" | "monitor" | "critical";
+    };
+    methods: {
+        method: "card" | "bank" | "wallet";
+        total: number;
+        succeeded: number;
+        pending: number;
+        failed: number;
+        successRate: number;
+        health: "healthy" | "monitor" | "critical";
+    }[];
+    recentDonations: {
+        _id: string;
+        donorName: string;
+        amount: number;
+        currency: string;
+        currencySymbol: string;
+        cause: string;
+        donationType: string;
+        paymentMethod: string;
+        paymentStatus: "succeeded" | "pending" | "failed";
+        transactionId: string;
+        createdAt: string;
+    }[];
+}
+
 function AdminPageInner() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -57,6 +95,8 @@ function AdminPageInner() {
     const [saving, setSaving] = useState<ContentType | null>(null);
     const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
     const [stats, setStats] = useState<Stats | null>(null);
+    const [finance, setFinance] = useState<FinanceData | null>(null);
+    const [financeLoading, setFinanceLoading] = useState(true);
 
     const [content, setContent] = useState<Record<ContentType, ContentItem>>({
         ayah: { type: "ayah", arabic: "", english: "", translation: "", reference: "" },
@@ -73,7 +113,7 @@ function AdminPageInner() {
                 router.push("/");
                 return;
             }
-            Promise.all([fetchContent(), fetchStats()]).finally(() => setLoading(false));
+            Promise.all([fetchContent(), fetchStats(), fetchFinance()]).finally(() => setLoading(false));
         }
     }, [status, session]);
 
@@ -102,6 +142,21 @@ function AdminPageInner() {
             }
         } catch (error) {
             console.error("Failed to fetch stats", error);
+        }
+    };
+
+    const fetchFinance = async () => {
+        setFinanceLoading(true);
+        try {
+            const res = await fetch("/api/admin/finance");
+            if (res.ok) {
+                const data = await res.json();
+                setFinance(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch finance", error);
+        } finally {
+            setFinanceLoading(false);
         }
     };
 
@@ -158,6 +213,7 @@ function AdminPageInner() {
         { id: "overview", label: "Overview", icon: LayoutDashboard },
         { id: "cms", label: "Daily Content", icon: Settings },
         { id: "posts", label: "Manage Posts", icon: Newspaper },
+        { id: "finance", label: "Finance", icon: Wallet },
     ];
 
     return (
@@ -218,11 +274,12 @@ function AdminPageInner() {
                 {/* TAB: OVERVIEW */}
                 {activeTab === "overview" && (
                     <div className="space-y-8">
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                             <StatCard title="Total Users" value={stats?.totalUsers ?? "—"} icon={<Users className="w-5 h-5" />} color="text-blue-600 bg-blue-50 dark:bg-blue-900/20" />
                             <StatCard title="Published Posts" value={stats?.publishedPosts ?? "—"} icon={<Eye className="w-5 h-5" />} color="text-green-600 bg-green-50 dark:bg-green-900/20" />
                             <StatCard title="Draft Posts" value={stats?.draftPosts ?? "—"} icon={<FilePen className="w-5 h-5" />} color="text-amber-600 bg-amber-50 dark:bg-amber-900/20" />
                             <StatCard title="Daily Content" value={stats?.contentItems ?? "—"} icon={<TrendingUp className="w-5 h-5" />} color="text-primary bg-primary/5" />
+                            <StatCard title="Donations (USD)" value={finance ? `$${finance.totals.totalDonationsUsd.toFixed(2)}` : "—"} icon={<Wallet className="w-5 h-5" />} color="text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" />
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -233,7 +290,7 @@ function AdminPageInner() {
                                 </div>
                                 <div className="p-4 space-y-1">
                                     {[
-                                        { href: "/admin/posts/new", icon: PlusCircle, label: "Create New Post", desc: "Write a text or video post", color: "text-primary bg-primary/10" },
+                                        { href: "/admin/posts/new", icon: PlusCircle, label: "Create New Post", desc: "Write a text or image post", color: "text-primary bg-primary/10" },
                                         { href: "/admin?tab=cms", icon: Settings, label: "Update Daily Content", desc: "Ayah, Hadith, Dua & Reminder", color: "text-secondary-dark bg-secondary/10" },
                                         { href: "/admin?tab=posts", icon: Newspaper, label: "Manage All Posts", desc: "Edit, publish or delete posts", color: "text-blue-600 bg-blue-50 dark:bg-blue-900/20" },
                                         { href: "/posts", icon: Eye, label: "View Public Posts", desc: "See what users see", color: "text-green-600 bg-green-50 dark:bg-green-900/20" },
@@ -269,8 +326,8 @@ function AdminPageInner() {
                                         <div className="space-y-2">
                                             {stats.recentPosts.map((post) => (
                                                 <div key={post._id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-primary/5 transition-colors">
-                                                    <div className={`p-1.5 rounded-md ${post.type === "video" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-600" : "bg-blue-100 dark:bg-blue-900/30 text-blue-600"}`}>
-                                                        {post.type === "video" ? <Video className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
+                                                    <div className={`p-1.5 rounded-md ${post.type === "video" ? "bg-purple-100 dark:bg-purple-900/30 text-purple-600" : post.type === "image" ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" : "bg-blue-100 dark:bg-blue-900/30 text-blue-600"}`}>
+                                                        {post.type === "video" ? <Video className="w-3.5 h-3.5" /> : post.type === "image" ? <ImageIcon className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <p className="text-sm font-medium truncate">{post.title}</p>
@@ -324,6 +381,9 @@ function AdminPageInner() {
 
                 {/* TAB: POSTS */}
                 {activeTab === "posts" && <PostsManager />}
+
+                {/* TAB: FINANCE */}
+                {activeTab === "finance" && <FinanceManager finance={finance} loading={financeLoading} />}
             </div>
         </div>
     );
@@ -443,8 +503,8 @@ function PostsManager() {
                                     <tr key={post._id} className="hover:bg-primary/5 transition-colors">
                                         <td className="px-4 py-3"><p className="font-semibold text-sm line-clamp-1">{post.title}</p></td>
                                         <td className="px-4 py-3 hidden sm:table-cell">
-                                            <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${post.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"}`}>
-                                                {post.type === "video" ? <Video className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
+                                            <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${post.type === "video" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" : post.type === "image" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"}`}>
+                                                {post.type === "video" ? <Video className="w-3 h-3" /> : post.type === "image" ? <ImageIcon className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
                                                 {post.type}
                                             </span>
                                         </td>
@@ -470,6 +530,112 @@ function PostsManager() {
                     </div>
                 </div>
             )}
+        </div>
+    );
+}
+
+function FinanceManager({ finance, loading }: { finance: FinanceData | null; loading: boolean }) {
+    const healthColor = (health: "healthy" | "monitor" | "critical") => {
+        if (health === "healthy") return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
+        if (health === "monitor") return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
+        return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
+    };
+
+    if (loading) {
+        return <div className="flex justify-center py-12"><RefreshCw className="w-6 h-6 animate-spin text-primary" /></div>;
+    }
+
+    if (!finance) {
+        return (
+            <div className="bg-white dark:bg-neutral-dark rounded-2xl border border-primary/10 shadow-sm p-10 text-center">
+                <AlertCircle className="w-10 h-10 mx-auto opacity-30 mb-2" />
+                <p className="text-sm opacity-60">Finance data is not available right now.</p>
+            </div>
+        );
+    }
+
+    return (
+        <div className="space-y-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard title="Total Donations (USD)" value={`$${finance.totals.totalDonationsUsd.toFixed(2)}`} icon={<Wallet className="w-5 h-5" />} color="text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" />
+                <StatCard title="Records" value={finance.totals.totalRecords} icon={<FileText className="w-5 h-5" />} color="text-blue-600 bg-blue-50 dark:bg-blue-900/20" />
+                <StatCard title="Succeeded" value={finance.totals.succeeded} icon={<ShieldCheck className="w-5 h-5" />} color="text-green-600 bg-green-50 dark:bg-green-900/20" />
+                <StatCard title="Failed" value={finance.totals.failed} icon={<AlertTriangle className="w-5 h-5" />} color="text-red-600 bg-red-50 dark:bg-red-900/20" />
+            </div>
+
+            <div className="bg-white dark:bg-neutral-dark rounded-2xl border border-primary/10 shadow-sm overflow-hidden">
+                <div className="bg-primary/5 px-6 py-4 border-b border-primary/10">
+                    <h2 className="font-bold text-primary dark:text-primary-light text-lg">Payment Method Health</h2>
+                </div>
+                <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {finance.methods.map((method) => (
+                        <div key={method.method} className="rounded-xl border border-primary/10 p-4 bg-neutral-light/20 dark:bg-black/10">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="text-sm font-bold capitalize">{method.method}</h3>
+                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${healthColor(method.health)}`}>
+                                    {method.health}
+                                </span>
+                            </div>
+                            <p className="text-2xl font-bold">{(method.successRate * 100).toFixed(1)}%</p>
+                            <p className="text-xs opacity-60">Success Rate</p>
+                            <div className="mt-3 text-xs opacity-70 space-y-1">
+                                <p>Total: {method.total}</p>
+                                <p>Succeeded: {method.succeeded}</p>
+                                <p>Pending: {method.pending}</p>
+                                <p>Failed: {method.failed}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <div className="bg-white dark:bg-neutral-dark rounded-2xl border border-primary/10 shadow-sm overflow-hidden">
+                <div className="bg-primary/5 px-6 py-4 border-b border-primary/10 flex items-center justify-between">
+                    <h2 className="font-bold text-primary dark:text-primary-light text-lg">Recent Donations</h2>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${healthColor(finance.totals.overallHealth)}`}>
+                        Overall: {(finance.totals.overallSuccessRate * 100).toFixed(1)}%
+                    </span>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b border-primary/10 bg-primary/5">
+                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Donor</th>
+                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Amount</th>
+                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Method</th>
+                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Status</th>
+                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden md:table-cell">Details</th>
+                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden lg:table-cell">Date</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-primary/5">
+                            {finance.recentDonations.length === 0 ? (
+                                <tr>
+                                    <td className="px-4 py-8 text-center text-sm opacity-60" colSpan={6}>No donations recorded yet.</td>
+                                </tr>
+                            ) : finance.recentDonations.map((donation) => (
+                                <tr key={donation._id} className="hover:bg-primary/5 transition-colors">
+                                    <td className="px-4 py-3 text-sm font-semibold">{donation.donorName || "Anonymous"}</td>
+                                    <td className="px-4 py-3 text-sm">{donation.currencySymbol}{donation.amount.toLocaleString()} {donation.currency}</td>
+                                    <td className="px-4 py-3 text-xs capitalize">{donation.paymentMethod}</td>
+                                    <td className="px-4 py-3">
+                                        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${donation.paymentStatus === "succeeded"
+                                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                            : donation.paymentStatus === "pending"
+                                                ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                                : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                                            }`}>
+                                            {donation.paymentStatus}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-xs opacity-70 hidden md:table-cell">{donation.cause} / {donation.donationType} / {donation.transactionId}</td>
+                                    <td className="px-4 py-3 text-xs opacity-60 hidden lg:table-cell">{new Date(donation.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 }

@@ -9,7 +9,7 @@ const PostSchema = new Schema({
     type: {
         type: String,
         required: true,
-        enum: ['post', 'video'],
+        enum: ['post', 'image', 'video'],
         default: 'post',
     },
     content: {
@@ -17,6 +17,10 @@ const PostSchema = new Schema({
         required: [true, 'Content is required'],
     },
     videoUrl: {
+        type: String,
+        default: '',
+    },
+    mediaUrl: {
         type: String,
         default: '',
     },

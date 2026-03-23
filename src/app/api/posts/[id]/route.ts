@@ -44,6 +44,15 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         }
 
         const data = await req.json();
+
+        if (data.type === 'video' && !data.videoUrl) {
+            return NextResponse.json({ message: 'Video URL is required for video posts' }, { status: 400 });
+        }
+
+        if (data.type === 'image' && !data.mediaUrl && !data.thumbnail) {
+            return NextResponse.json({ message: 'Image is required for image posts' }, { status: 400 });
+        }
+
         await dbConnect();
 
         const updatedPost = await Post.findByIdAndUpdate(

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, CreditCard, RefreshCw, Lock, Globe, ChevronDown, X, Check } from "lucide-react";
+import { Heart, CreditCard, RefreshCw, Lock, Globe, ChevronDown, X, Check, Landmark, Wallet } from "lucide-react";
 
 interface CurrencyInfo {
     country: string;
@@ -58,8 +58,12 @@ export default function DonatePage() {
     const [customAmount, setCustomAmount] = useState("");
     const [donationType, setDonationType] = useState<"one-time" | "monthly">("one-time");
     const [cause, setCause] = useState<"general" | "zakat" | "sadaqah">("general");
+    const [paymentMethod, setPaymentMethod] = useState<"card" | "bank" | "wallet">("card");
+    const [donorName, setDonorName] = useState("");
+    const [donorEmail, setDonorEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [error, setError] = useState("");
 
     useEffect(() => {
         fetch("/api/currency")
@@ -94,10 +98,50 @@ export default function DonatePage() {
         ? (customAmount ? `${currency.symbol}${customAmount}` : "")
         : formatAmount(amount as number, currency.symbol);
 
-    const handleDonate = (e: React.FormEvent) => {
+    const handleDonate = async (e: React.FormEvent) => {
         e.preventDefault();
+        setError("");
         setLoading(true);
-        setTimeout(() => { setLoading(false); setSuccess(true); }, 1800);
+
+        const numericAmount = amount === "custom" ? Number(customAmount) : Number(amount);
+        if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+            setLoading(false);
+            setError("Please enter a valid donation amount.");
+            return;
+        }
+
+        try {
+            const simulatedStatus = paymentMethod === "bank" ? "pending" : "succeeded";
+
+            const res = await fetch("/api/donations", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    donorName: donorName.trim() || "Anonymous",
+                    donorEmail: donorEmail.trim(),
+                    amount: numericAmount,
+                    currency: currency.code,
+                    currencySymbol: currency.symbol,
+                    rate: currency.rate,
+                    cause,
+                    donationType,
+                    paymentMethod,
+                    paymentStatus: simulatedStatus,
+                    country: currency.country,
+                }),
+            });
+
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data?.message || "Failed to process donation");
+            }
+
+            setSuccess(true);
+        } catch (err: any) {
+            setError(err?.message || "Donation failed. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const filteredCountries = ALL_COUNTRIES.filter(c =>
@@ -117,7 +161,7 @@ export default function DonatePage() {
                         <p className="text-neutral-dark/70 dark:text-neutral-light/70">Your donation of <strong>{displayAmount}</strong> has been received. May Allah accept it as Sadaqah Jariyah.</p>
                     </div>
                     <p className="font-arabic text-xl text-secondary" dir="rtl">اللَّهُمَّ تَقَبَّلْ مِنَّا</p>
-                    <button onClick={() => { setSuccess(false); setAmount(currency.presets[2]); setCustomAmount(""); }} className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors">
+                    <button onClick={() => { setSuccess(false); setAmount(currency.presets[2]); setCustomAmount(""); setError(""); }} className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors">
                         Donate Again
                     </button>
                 </div>
@@ -239,6 +283,27 @@ export default function DonatePage() {
                         <div className="p-8 md:p-12">
                             <form onSubmit={handleDonate} className="space-y-7">
 
+                                {/* Donor Details */}
+                                <div className="space-y-3">
+                                    <h3 className="font-semibold text-sm">Donor Details (optional)</h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <input
+                                            type="text"
+                                            value={donorName}
+                                            onChange={(e) => setDonorName(e.target.value)}
+                                            placeholder="Full name"
+                                            className="w-full px-3 py-2.5 bg-neutral-light/50 dark:bg-black/20 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                                        />
+                                        <input
+                                            type="email"
+                                            value={donorEmail}
+                                            onChange={(e) => setDonorEmail(e.target.value)}
+                                            placeholder="Email address"
+                                            className="w-full px-3 py-2.5 bg-neutral-light/50 dark:bg-black/20 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                                        />
+                                    </div>
+                                </div>
+
                                 {/* Cause Selection */}
                                 <div>
                                     <h3 className="font-semibold mb-3 text-sm">Donation Type</h3>
@@ -263,6 +328,34 @@ export default function DonatePage() {
                                             </label>
                                         ))}
                                     </div>
+                                </div>
+
+                                {/* Payment Method */}
+                                <div>
+                                    <h3 className="font-semibold mb-3 text-sm">Payment Method</h3>
+                                    <div className="grid grid-cols-3 gap-2">
+                                        {([
+                                            { value: "card", label: "Card", icon: CreditCard },
+                                            { value: "bank", label: "Bank", icon: Landmark },
+                                            { value: "wallet", label: "Wallet", icon: Wallet },
+                                        ] as const).map((method) => (
+                                            <button
+                                                key={method.value}
+                                                type="button"
+                                                onClick={() => setPaymentMethod(method.value)}
+                                                className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm border-2 transition-all ${paymentMethod === method.value
+                                                    ? "border-primary text-primary bg-primary/5"
+                                                    : "border-transparent bg-neutral-light/50 dark:bg-black/20 hover:bg-neutral-light dark:hover:bg-black/40"
+                                                    }`}
+                                            >
+                                                <method.icon className="w-4 h-4" />
+                                                {method.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                    <p className="mt-2 text-xs opacity-60">
+                                        Bank payments are recorded as pending until settlement.
+                                    </p>
                                 </div>
 
                                 {/* Amount */}
@@ -303,6 +396,7 @@ export default function DonatePage() {
 
                                 {/* Submit Action */}
                                 <div className="pt-4 border-t border-primary/10">
+                                    {error && <p className="mb-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
                                     <button
                                         type="submit"
                                         disabled={loading || (amount === "custom" && !customAmount) || currencyLoading}

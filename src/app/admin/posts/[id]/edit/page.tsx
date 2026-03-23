@@ -11,7 +11,7 @@ import {
     AlertCircle,
     CheckCircle2,
     FileText,
-    Video,
+    ImagePlus,
     Eye,
     FilePen,
 } from "lucide-react";
@@ -26,9 +26,10 @@ export default function EditPostPage() {
 
     const [form, setForm] = useState({
         title: "",
-        type: "post" as "post" | "video",
+        type: "post" as "post" | "image" | "video",
         content: "",
         videoUrl: "",
+        mediaUrl: "",
         thumbnail: "",
         category: "general" as typeof CATEGORIES[number],
         status: "draft" as "draft" | "published",
@@ -61,6 +62,7 @@ export default function EditPostPage() {
                     type: post.type || "post",
                     content: post.content || "",
                     videoUrl: post.videoUrl || "",
+                    mediaUrl: post.mediaUrl || post.thumbnail || "",
                     thumbnail: post.thumbnail || "",
                     category: post.category || "general",
                     status: post.status || "draft",
@@ -79,6 +81,22 @@ export default function EditPostPage() {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
+    const handleMediaSelect = async (file: File | null) => {
+        if (!file) return;
+        if (!file.type.startsWith("image/")) {
+            setMessage({ type: "error", text: "Please select an image file." });
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const dataUrl = String(reader.result || "");
+            setForm((prev) => ({ ...prev, mediaUrl: dataUrl, thumbnail: dataUrl, videoUrl: "" }));
+        };
+        reader.onerror = () => setMessage({ type: "error", text: "Failed to read image file." });
+        reader.readAsDataURL(file);
+    };
+
     const handleSubmit = async (publishStatus: "draft" | "published") => {
         if (!form.title.trim()) {
             setMessage({ type: "error", text: "Title is required." });
@@ -90,6 +108,11 @@ export default function EditPostPage() {
         }
         if (form.type === "video" && !form.videoUrl.trim()) {
             setMessage({ type: "error", text: "Video URL is required for video posts." });
+            return;
+        }
+
+        if (form.type === "image" && !form.mediaUrl.trim() && !form.thumbnail.trim()) {
+            setMessage({ type: "error", text: "Image is required for image posts." });
             return;
         }
 
@@ -168,12 +191,20 @@ export default function EditPostPage() {
                             <div className="flex gap-3">
                                 {[
                                     { value: "post", icon: FileText, label: "Text Post" },
-                                    { value: "video", icon: Video, label: "Video Post" },
+                                    { value: "image", icon: ImagePlus, label: "Image Post" },
                                 ].map(({ value, icon: Icon, label }) => (
                                     <button
                                         key={value}
                                         type="button"
-                                        onClick={() => handleChange("type", value)}
+                                        onClick={() =>
+                                            setForm((prev) => ({
+                                                ...prev,
+                                                type: value as "post" | "image",
+                                                videoUrl: value === "image" ? "" : prev.videoUrl,
+                                                mediaUrl: value === "post" ? "" : prev.mediaUrl,
+                                                thumbnail: value === "post" ? "" : prev.thumbnail,
+                                            }))
+                                        }
                                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all ${form.type === value
                                             ? "border-primary bg-primary text-white"
                                             : "border-primary/20 hover:border-primary/40 text-neutral-dark/70 dark:text-neutral-light/70"
@@ -216,47 +247,36 @@ export default function EditPostPage() {
                             </select>
                         </div>
 
-                        {/* Video URL */}
-                        {form.type === "video" && (
+                        {/* Image Upload */}
+                        {form.type === "image" && (
                             <div className="space-y-2">
                                 <label className="text-sm font-semibold opacity-70">
-                                    Video URL <span className="text-red-500">*</span>
-                                    <span className="font-normal ml-2 text-xs opacity-60">(YouTube, Vimeo, or direct URL)</span>
+                                    Upload Image <span className="text-red-500">*</span>
+                                    <span className="font-normal ml-2 text-xs opacity-60">(from your device)</span>
                                 </label>
                                 <input
-                                    type="url"
-                                    value={form.videoUrl}
-                                    onChange={(e) => handleChange("videoUrl", e.target.value)}
-                                    placeholder="https://www.youtube.com/watch?v=..."
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleMediaSelect(e.target.files?.[0] || null)}
                                     className="w-full p-3 bg-neutral-light/20 dark:bg-black/20 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40"
                                 />
+                                {(form.mediaUrl || form.thumbnail) && (
+                                    <div className="rounded-xl border border-primary/15 overflow-hidden bg-neutral-light/40 dark:bg-black/20">
+                                        <img src={form.mediaUrl || form.thumbnail} alt="Selected upload preview" className="w-full max-h-80 object-cover" />
+                                    </div>
+                                )}
                             </div>
                         )}
-
-                        {/* Thumbnail URL */}
-                        <div className="space-y-2">
-                            <label className="text-sm font-semibold opacity-70">
-                                Thumbnail URL
-                                <span className="font-normal ml-2 text-xs opacity-60">(optional)</span>
-                            </label>
-                            <input
-                                type="url"
-                                value={form.thumbnail}
-                                onChange={(e) => handleChange("thumbnail", e.target.value)}
-                                placeholder="https://example.com/image.jpg"
-                                className="w-full p-3 bg-neutral-light/20 dark:bg-black/20 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40"
-                            />
-                        </div>
 
                         {/* Content */}
                         <div className="space-y-2">
                             <label className="text-sm font-semibold opacity-70">
-                                {form.type === "video" ? "Description" : "Content"} <span className="text-red-500">*</span>
+                                {form.type === "image" ? "Caption" : "Content"} <span className="text-red-500">*</span>
                             </label>
                             <textarea
                                 value={form.content}
                                 onChange={(e) => handleChange("content", e.target.value)}
-                                placeholder={form.type === "video" ? "Write a description for this video..." : "Write your post content here..."}
+                                placeholder={form.type === "image" ? "Write a caption for this image..." : "Write your post content here..."}
                                 rows={10}
                                 className="w-full p-3 bg-neutral-light/20 dark:bg-black/20 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/40 resize-y min-h-[200px] leading-relaxed"
                             />
