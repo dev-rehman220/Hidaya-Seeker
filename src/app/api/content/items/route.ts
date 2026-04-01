@@ -2,15 +2,21 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
-import { readDailyItems, writeDailyItems, type DailyJsonType, type DailyJsonItem } from '@/lib/dailyJsonStore';
+import { readDailyItems, writeDailyItems, getDailyJsonEntryCount, type DailyJsonType, type DailyJsonItem } from '@/lib/dailyJsonStore';
 
-// GET all items of a specific type
+// GET all items of a specific type or get counts for all types
 export async function GET(req: Request) {
     try {
         const { searchParams } = new URL(req.url);
         const type = searchParams.get('type') as DailyJsonType | null;
 
-        if (!type || !['ayah', 'hadith', 'dua', 'reminder'].includes(type)) {
+        // If no type specified, return entry counts for all types
+        if (!type) {
+            const counts = await getDailyJsonEntryCount();
+            return NextResponse.json(counts);
+        }
+
+        if (!['ayah', 'hadith', 'dua', 'reminder'].includes(type)) {
             return NextResponse.json({ message: 'Invalid or missing type parameter. Use: ayah, hadith, dua, or reminder' }, { status: 400 });
         }
 
@@ -61,6 +67,7 @@ export async function POST(req: Request) {
             translation: item.translation ?? '',
             reference: item.reference ?? '',
             subtitle: item.subtitle ?? '',
+            tafseer: item.tafseer ?? '',
         };
 
         items.push(newItem);
@@ -113,6 +120,7 @@ export async function PUT(req: Request) {
             translation: item?.translation ?? items[itemIndex].translation,
             reference: item?.reference ?? items[itemIndex].reference,
             subtitle: item?.subtitle ?? items[itemIndex].subtitle,
+            tafseer: item?.tafseer ?? items[itemIndex].tafseer,
         };
 
         await writeDailyItems(type as DailyJsonType, items);
