@@ -9,9 +9,9 @@ export const dynamic = "force-dynamic";
 
 const VALID_CAUSES = new Set(["general", "zakat", "sadaqah"]);
 const VALID_DONATION_TYPES = new Set(["one-time", "monthly"]);
-const VALID_PAYMENT_METHODS = new Set(["card", "bank", "wallet"]);
+const VALID_PAYMENT_METHODS = new Set(["bank-transfer"]);
 const VALID_PAYMENT_STATUS = new Set(["succeeded", "pending", "failed"]);
-const VALID_PROVIDERS = new Set(["jazzcash", "manual"]);
+const VALID_PROVIDERS = new Set(["manual"]);
 
 function toUsd(amount: number, rate: number) {
     if (!Number.isFinite(rate) || rate <= 0) return amount;
@@ -31,11 +31,14 @@ export async function POST(req: Request) {
         const rate = Number(data?.rate || 1);
         const cause = String(data?.cause || "general");
         const donationType = String(data?.donationType || "one-time");
-        const paymentMethod = String(data?.paymentMethod || "card");
-        const paymentStatus = String(data?.paymentStatus || "succeeded");
+        const paymentMethod = String(data?.paymentMethod || "bank-transfer");
+        const paymentStatus = String(data?.paymentStatus || "pending");
         const provider = String(data?.provider || "manual");
         const transactionId = String(data?.transactionId || "").trim() || makeTransactionId();
         const gatewayReference = String(data?.gatewayReference || "").trim();
+        const paymentProofUrl = String(data?.paymentProofUrl || "").trim();
+        const paymentCardId = String(data?.paymentCardId || "").trim();
+        const paymentCardLabel = String(data?.paymentCardLabel || "").trim();
 
         if (!Number.isFinite(amount) || amount <= 0) {
             return NextResponse.json({ message: "Invalid donation amount" }, { status: 400 });
@@ -61,6 +64,14 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "Invalid payment provider" }, { status: 400 });
         }
 
+        if (!paymentProofUrl) {
+            return NextResponse.json({ message: "Payment screenshot proof is required" }, { status: 400 });
+        }
+
+        if (!paymentCardId) {
+            return NextResponse.json({ message: "Payment card selection is required" }, { status: 400 });
+        }
+
         await dbConnect();
 
         const created = await Donation.create({
@@ -75,11 +86,15 @@ export async function POST(req: Request) {
             paymentMethod,
             provider,
             paymentStatus,
+            verificationStatus: "pending",
             transactionId,
             gatewayReference,
+            paymentProofUrl,
+            paymentCardId,
             meta: {
                 country: String(data?.country || "").toUpperCase(),
                 source: "donate-page",
+                paymentCardLabel,
             },
         });
 
