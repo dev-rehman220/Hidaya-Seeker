@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Heart, CreditCard, RefreshCw, Lock, Globe, ChevronDown, X, Check, Landmark, Wallet } from "lucide-react";
+import { Heart, RefreshCw, Globe, ChevronDown, X, Check, Copy, Image as ImageIcon, UploadCloud } from "lucide-react";
 
 interface CurrencyInfo {
     country: string;
@@ -13,7 +13,15 @@ interface CurrencyInfo {
     presets: number[];
 }
 
-type PaymentProvider = "jazzcash";
+interface PaymentCard {
+    _id: string;
+    label: string;
+    accountTitle: string;
+    accountNumber: string;
+    bankName?: string;
+    iban?: string;
+    instructions?: string;
+}
 
 const ALL_COUNTRIES: { code: string; name: string; flag: string; currency: string }[] = [
     { code: "US", name: "United States", flag: "🇺🇸", currency: "USD" },
@@ -60,14 +68,17 @@ export default function DonatePage() {
     const [customAmount, setCustomAmount] = useState("");
     const [donationType, setDonationType] = useState<"one-time" | "monthly">("one-time");
     const [cause, setCause] = useState<"general" | "zakat" | "sadaqah">("general");
-    const [paymentMethod, setPaymentMethod] = useState<"card" | "bank" | "wallet">("card");
     const [donorName, setDonorName] = useState("");
     const [donorEmail, setDonorEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
-    const [selectedProvider, setSelectedProvider] = useState<PaymentProvider | null>(null);
-    const [paymentStatus, setPaymentStatus] = useState<"pending" | "succeeded" | "failed">("pending");
+    const [paymentCards, setPaymentCards] = useState<PaymentCard[]>([]);
+    const [cardsLoading, setCardsLoading] = useState(true);
+    const [selectedCardId, setSelectedCardId] = useState("");
+    const [copiedCardId, setCopiedCardId] = useState("");
+    const [proofFile, setProofFile] = useState<File | null>(null);
+    const [proofPreview, setProofPreview] = useState("");
 
     useEffect(() => {
         fetch("/api/currency")
@@ -80,6 +91,19 @@ export default function DonatePage() {
             })
             .catch(() => {})
             .finally(() => setCurrencyLoading(false));
+
+        fetch("/api/payment-cards")
+            .then(r => r.json())
+            .then((data) => {
+                if (Array.isArray(data)) {
+                    setPaymentCards(data);
+                    if (data[0]?._id) {
+                        setSelectedCardId(data[0]._id);
+                    }
+                }
+            })
+            .catch(() => {})
+            .finally(() => setCardsLoading(false));
     }, []);
 
     const handleCountrySelect = async (countryCode: string) => {
@@ -102,6 +126,53 @@ export default function DonatePage() {
         ? (customAmount ? `${currency.symbol}${customAmount}` : "")
         : formatAmount(amount as number, currency.symbol);
 
+    const selectedCard = paymentCards.find((card) => card._id === selectedCardId) || null;
+
+    const handleCopyCard = async (card: PaymentCard) => {
+        const lines = [
+            `Label: ${card.label}`,
+            card.bankName ? `Bank: ${card.bankName}` : "",
+            `Account Title: ${card.accountTitle}`,
+            `Account Number: ${card.accountNumber}`,
+            card.iban ? `IBAN: ${card.iban}` : "",
+            card.instructions ? `Instructions: ${card.instructions}` : "",
+        ].filter(Boolean);
+
+        try {
+            await navigator.clipboard.writeText(lines.join("\n"));
+            setCopiedCardId(card._id);
+            setTimeout(() => setCopiedCardId(""), 1200);
+        } catch {
+            setError("Could not copy payment details. Please copy manually.");
+        }
+    };
+
+    const uploadProofToCloudinary = async (file: File) => {
+        const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+        const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+        if (!cloudName || !uploadPreset) {
+            throw new Error("Cloud upload is not configured. Ask admin to set Cloudinary env vars.");
+        }
+
+        const form = new FormData();
+        form.append("file", file);
+        form.append("upload_preset", uploadPreset);
+        form.append("folder", "hidaya-seeker/payment-proofs");
+
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+            method: "POST",
+            body: form,
+        });
+
+        const uploadData = await uploadRes.json().catch(() => ({}));
+        if (!uploadRes.ok || !uploadData?.secure_url) {
+            throw new Error(uploadData?.error?.message || "Failed to upload payment screenshot");
+        }
+
+        return String(uploadData.secure_url);
+    };
+
     const handleDonate = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
@@ -114,34 +185,20 @@ export default function DonatePage() {
             return;
         }
 
+        if (!selectedCardId || !selectedCard) {
+            setLoading(false);
+            setError("Please select a payment card.");
+            return;
+        }
+
+        if (!proofFile) {
+            setLoading(false);
+            setError("Please upload your payment screenshot proof.");
+            return;
+        }
+
         try {
-            const intentRes = await fetch("/api/payments/create-intent", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    amount: numericAmount,
-                    currency: currency.code,
-                    country: currency.country,
-                    cause,
-                    donationType,
-                    paymentMethod,
-                    donorName: donorName.trim() || "Anonymous",
-                    donorEmail: donorEmail.trim(),
-                }),
-            });
-
-            const intentData = await intentRes.json().catch(() => ({}));
-            if (!intentRes.ok || !intentData?.intent) {
-                throw new Error(intentData?.message || "Failed to initialize payment");
-            }
-
-            const intent = intentData.intent as {
-                provider: PaymentProvider;
-                transactionId: string;
-                paymentStatus: "pending" | "succeeded" | "failed";
-                checkoutUrl?: string;
-                gatewayReference?: string;
-            };
+            const paymentProofUrl = await uploadProofToCloudinary(proofFile);
 
             const res = await fetch("/api/donations", {
                 method: "POST",
@@ -155,11 +212,12 @@ export default function DonatePage() {
                     rate: currency.rate,
                     cause,
                     donationType,
-                    paymentMethod,
-                    provider: intent.provider,
-                    transactionId: intent.transactionId,
-                    gatewayReference: intent.gatewayReference || "",
-                    paymentStatus: intent.paymentStatus,
+                    paymentMethod: "bank-transfer",
+                    provider: "manual",
+                    paymentStatus: "pending",
+                    paymentCardId: selectedCardId,
+                    paymentCardLabel: selectedCard.label,
+                    paymentProofUrl,
                     country: currency.country,
                 }),
             });
@@ -169,14 +227,9 @@ export default function DonatePage() {
                 throw new Error(data?.message || "Failed to process donation");
             }
 
-            if (intent.checkoutUrl) {
-                window.location.href = intent.checkoutUrl;
-                return;
-            }
-
-            setSelectedProvider(intent.provider);
-            setPaymentStatus(intent.paymentStatus);
             setSuccess(true);
+            setProofFile(null);
+            setProofPreview("");
         } catch (err: any) {
             setError(err?.message || "Donation failed. Please try again.");
         } finally {
@@ -199,19 +252,12 @@ export default function DonatePage() {
                     <div>
                         <h2 className="text-2xl font-bold text-primary dark:text-primary-light mb-2">JazakAllah Khayran!</h2>
                         <p className="text-neutral-dark/70 dark:text-neutral-light/70">
-                            {paymentStatus === "pending"
-                                ? <>Your donation of <strong>{displayAmount}</strong> has been initiated and is pending confirmation.</>
-                                : <>Your donation of <strong>{displayAmount}</strong> has been received.</>}
+                            Your donation of <strong>{displayAmount}</strong> was submitted and is pending manual verification.
                             {" "}May Allah accept it as Sadaqah Jariyah.
                         </p>
-                        {selectedProvider && (
-                            <p className="text-xs opacity-60">
-                                Routed via JazzCash
-                            </p>
-                        )}
                     </div>
                     <p className="font-arabic text-xl text-secondary" dir="rtl">اللَّهُمَّ تَقَبَّلْ مِنَّا</p>
-                    <button onClick={() => { setSuccess(false); setAmount(currency.presets[2]); setCustomAmount(""); setError(""); setSelectedProvider(null); }} className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors">
+                    <button onClick={() => { setSuccess(false); setAmount(currency.presets[2]); setCustomAmount(""); setError(""); }} className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors">
                         Donate Again
                     </button>
                 </div>
@@ -380,32 +426,88 @@ export default function DonatePage() {
                                     </div>
                                 </div>
 
-                                {/* Payment Method */}
-                                <div>
-                                    <h3 className="font-semibold mb-3 text-sm">Payment Method</h3>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {([
-                                            { value: "card", label: "Card", icon: CreditCard },
-                                            { value: "bank", label: "Bank", icon: Landmark },
-                                            { value: "wallet", label: "Wallet", icon: Wallet },
-                                        ] as const).map((method) => (
-                                            <button
-                                                key={method.value}
-                                                type="button"
-                                                onClick={() => setPaymentMethod(method.value)}
-                                                className={`flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm border-2 transition-all ${paymentMethod === method.value
-                                                    ? "border-primary text-primary bg-primary/5"
-                                                    : "border-transparent bg-neutral-light/50 dark:bg-black/20 hover:bg-neutral-light dark:hover:bg-black/40"
-                                                    }`}
-                                            >
-                                                <method.icon className="w-4 h-4" />
-                                                {method.label}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <p className="mt-2 text-xs opacity-60">
-                                        Bank payments are recorded as pending until settlement.
-                                    </p>
+                                {/* Payment Cards */}
+                                <div className="space-y-3">
+                                    <h3 className="font-semibold text-sm">Bank Transfer Details</h3>
+                                    {cardsLoading ? (
+                                        <div className="space-y-2">
+                                            {[...Array(2)].map((_, i) => (
+                                                <div key={i} className="h-24 rounded-xl bg-neutral-light/70 dark:bg-white/5 animate-pulse" />
+                                            ))}
+                                        </div>
+                                    ) : paymentCards.length === 0 ? (
+                                        <p className="text-sm text-amber-700 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-xl p-3">
+                                            No payment card is active right now. Please contact admin.
+                                        </p>
+                                    ) : (
+                                        <div className="space-y-3">
+                                            {paymentCards.map((card) => (
+                                                <div
+                                                    key={card._id}
+                                                    className={`rounded-xl border-2 p-3 transition-colors ${selectedCardId === card._id ? "border-primary bg-primary/5" : "border-primary/15 bg-neutral-light/40 dark:bg-black/20"}`}
+                                                >
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <label className="flex items-start gap-2 cursor-pointer flex-1">
+                                                            <input
+                                                                type="radio"
+                                                                name="payment-card"
+                                                                checked={selectedCardId === card._id}
+                                                                onChange={() => setSelectedCardId(card._id)}
+                                                                className="mt-1"
+                                                            />
+                                                            <div className="text-sm">
+                                                                <p className="font-semibold">{card.label}</p>
+                                                                {card.bankName && <p className="opacity-70">Bank: {card.bankName}</p>}
+                                                                <p className="opacity-70">Title: {card.accountTitle}</p>
+                                                                <p className="opacity-70">Account: {card.accountNumber}</p>
+                                                                {card.iban && <p className="opacity-70">IBAN: {card.iban}</p>}
+                                                                {card.instructions && <p className="opacity-70 mt-1">{card.instructions}</p>}
+                                                            </div>
+                                                        </label>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleCopyCard(card)}
+                                                            className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-lg border border-primary/20 hover:bg-primary/5"
+                                                        >
+                                                            {copiedCardId === card._id ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                                            {copiedCardId === card._id ? "Copied" : "Copy"}
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Payment Proof */}
+                                <div className="space-y-2">
+                                    <h3 className="font-semibold text-sm">Upload Payment Screenshot</h3>
+                                    <label className="block border-2 border-dashed border-primary/20 rounded-xl p-4 bg-neutral-light/40 dark:bg-black/20 cursor-pointer hover:bg-primary/5 transition-colors">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                const file = e.target.files?.[0] || null;
+                                                setProofFile(file);
+                                                if (file) {
+                                                    setProofPreview(URL.createObjectURL(file));
+                                                } else {
+                                                    setProofPreview("");
+                                                }
+                                            }}
+                                        />
+                                        <div className="flex items-center gap-2 text-sm">
+                                            <UploadCloud className="w-4 h-4 text-primary" />
+                                            <span>{proofFile ? proofFile.name : "Choose screenshot file"}</span>
+                                        </div>
+                                        <p className="text-xs opacity-60 mt-1">After transferring payment, upload a clear screenshot for verification.</p>
+                                    </label>
+                                    {proofPreview && (
+                                        <div className="rounded-xl overflow-hidden border border-primary/15">
+                                            <img src={proofPreview} alt="Payment proof preview" className="w-full h-40 object-cover" />
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Amount */}
@@ -456,13 +558,13 @@ export default function DonatePage() {
                                             <RefreshCw className="w-5 h-5 animate-spin" />
                                         ) : (
                                             <>
-                                                <CreditCard className="w-4 h-4 mr-2" />
-                                                Donate {displayAmount}{donationType === "monthly" ? " Monthly" : ""}
+                                                <ImageIcon className="w-4 h-4 mr-2" />
+                                                Submit Donation Proof for {displayAmount}{donationType === "monthly" ? " Monthly" : ""}
                                             </>
                                         )}
                                     </button>
                                     <p className="col-span-2 text-center text-xs opacity-60 mt-4 flex items-center justify-center gap-1">
-                                        <Lock className="w-3 h-3" /> Secure payment routed via JazzCash
+                                        We verify your screenshot manually before marking this donation as received.
                                     </p>
                                 </div>
 
