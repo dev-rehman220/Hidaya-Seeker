@@ -44,18 +44,33 @@ const DonationSchema = new Schema({
     },
     paymentMethod: {
         type: String,
-        enum: ["card", "bank", "wallet"],
-        default: "card",
+        enum: ["bank-transfer"],
+        default: "bank-transfer",
     },
     provider: {
         type: String,
-        enum: ["jazzcash", "manual"],
+        enum: ["manual"],
         default: "manual",
     },
     paymentStatus: {
         type: String,
         enum: ["succeeded", "pending", "failed"],
-        default: "succeeded",
+        default: "pending",
+    },
+    verificationStatus: {
+        type: String,
+        enum: ["pending", "verified", "rejected"],
+        default: "pending",
+    },
+    paymentProofUrl: {
+        type: String,
+        default: "",
+        trim: true,
+    },
+    paymentCardId: {
+        type: Schema.Types.ObjectId,
+        ref: "PaymentCard",
+        default: null,
     },
     transactionId: {
         type: String,
@@ -80,6 +95,11 @@ const DonationSchema = new Schema({
             default: "web",
             trim: true,
         },
+        paymentCardLabel: {
+            type: String,
+            default: "",
+            trim: true,
+        },
     },
     createdAt: {
         type: Date,
@@ -99,6 +119,7 @@ DonationSchema.pre("save", function (next) {
 DonationSchema.index({ createdAt: -1 });
 DonationSchema.index({ paymentMethod: 1, paymentStatus: 1 });
 DonationSchema.index({ provider: 1, createdAt: -1 });
+DonationSchema.index({ verificationStatus: 1, createdAt: -1 });
 
 const Donation = models.Donation || model("Donation", DonationSchema);
 
