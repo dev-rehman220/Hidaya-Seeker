@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { getDailyItemForDate, saveTodayDailyItem, type DailyJsonType } from '@/lib/dailyJsonStore';
+import { getDailyItemForDate, saveTodayDailyItem, addDailyItem, type DailyJsonType } from '@/lib/dailyJsonStore';
 
 const JSON_DAILY_TYPES: DailyJsonType[] = ['ayah', 'hadith', 'dua', 'reminder'];
 
@@ -48,7 +48,7 @@ export async function POST(req: Request) {
         }
 
         const data = await req.json();
-        const { type, ...updateData } = data;
+        const { type, action = "update", ...updateData } = data;
 
         if (!type) {
             return NextResponse.json({ message: "Type is required" }, { status: 400 });
@@ -59,15 +59,24 @@ export async function POST(req: Request) {
                 return NextResponse.json({ message: 'English text is required' }, { status: 400 });
             }
 
-            const updatedJsonContent = await saveTodayDailyItem(type as DailyJsonType, {
+            const payload = {
                 arabic: updateData.arabic,
                 english: updateData.english,
                 translation: updateData.translation,
                 reference: updateData.reference,
                 subtitle: updateData.subtitle,
-            });
+                tafseer: updateData.tafseer,
+            };
 
-            return NextResponse.json(updatedJsonContent);
+            if (action === 'add') {
+                // Add new entry to rotation
+                const result = await addDailyItem(type as DailyJsonType, payload);
+                return NextResponse.json({ ...result, message: `New ${type} entry added successfully!` });
+            } else {
+                // Update today's entry
+                const result = await saveTodayDailyItem(type as DailyJsonType, payload);
+                return NextResponse.json(result);
+            }
         }
 
         return NextResponse.json({ message: 'Invalid type' }, { status: 400 });
