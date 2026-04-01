@@ -7,7 +7,7 @@ import { authOptions } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
-type PaymentMethodKey = "card" | "bank" | "wallet";
+type PaymentMethodKey = "bank-transfer";
 
 function getHealthLabel(successRate: number) {
     if (successRate >= 0.98) return "healthy";
@@ -59,7 +59,7 @@ export async function GET(req: Request) {
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(limit)
-                .select("donorName amount currency currencySymbol cause donationType paymentMethod provider paymentStatus transactionId gatewayReference createdAt updatedAt")
+                .select("donorName amount currency currencySymbol cause donationType paymentMethod provider paymentStatus verificationStatus transactionId gatewayReference paymentProofUrl meta createdAt updatedAt")
                 .lean(),
             Donation.aggregate([
                 {
@@ -95,9 +95,7 @@ export async function GET(req: Request) {
         };
 
         const defaults: Record<PaymentMethodKey, { total: number; succeeded: number; pending: number; failed: number }> = {
-            card: { total: 0, succeeded: 0, pending: 0, failed: 0 },
-            bank: { total: 0, succeeded: 0, pending: 0, failed: 0 },
-            wallet: { total: 0, succeeded: 0, pending: 0, failed: 0 },
+            "bank-transfer": { total: 0, succeeded: 0, pending: 0, failed: 0 },
         };
 
         for (const row of methodRows) {
