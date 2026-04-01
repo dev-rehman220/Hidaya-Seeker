@@ -12,6 +12,15 @@ export interface DailyJsonItem {
   translation?: string;
   reference?: string;
   subtitle?: string;
+  tafseer?: string;
+}
+
+export interface EntryCountResult {
+  ayah: number;
+  hadith: number;
+  dua: number;
+  reminder: number;
+  total: number;
 }
 
 const DATA_FILE_BY_TYPE: Record<DailyJsonType, string> = {
@@ -39,11 +48,15 @@ function getCycleIndex(date: Date = new Date()): number {
 }
 
 function getDateIndex(totalItems: number, date: Date = new Date()): number {
-  if (totalItems < DAILY_CYCLE_DAYS) {
+  if (totalItems === 0) {
     return 0;
   }
 
-  return getCycleIndex(date);
+  // Use dynamic rotation based on actual item count
+  const cycleLength = Math.max(totalItems, DAILY_CYCLE_DAYS);
+  const anchor = new Date(CYCLE_ANCHOR_UTC);
+  const delta = getUtcDayNumber(date) - getUtcDayNumber(anchor);
+  return ((delta % cycleLength) + cycleLength) % cycleLength;
 }
 
 export async function readDailyItems(type: DailyJsonType): Promise<DailyJsonItem[]> {
@@ -71,8 +84,8 @@ export async function getDailyItemForDate(
 ): Promise<DailyJsonItem & { type: DailyJsonType }> {
   const items = await readDailyItems(type);
 
-  if (items.length < DAILY_CYCLE_DAYS) {
-    throw new Error(`Expected at least ${DAILY_CYCLE_DAYS} entries for type: ${type}`);
+  if (items.length === 0) {
+    throw new Error(`No entries found for type: ${type}`);
   }
 
   const index = getDateIndex(items.length, date);
@@ -88,8 +101,8 @@ export async function saveTodayDailyItem(
 ): Promise<DailyJsonItem & { type: DailyJsonType }> {
   const items = await readDailyItems(type);
 
-  if (items.length < DAILY_CYCLE_DAYS) {
-    throw new Error(`Expected at least ${DAILY_CYCLE_DAYS} entries for type: ${type}`);
+  if (items.length === 0) {
+    throw new Error(`No entries found for type: ${type}`);
   }
 
   const index = getDateIndex(items.length);
@@ -102,6 +115,7 @@ export async function saveTodayDailyItem(
     translation: payload.translation ?? "",
     reference: payload.reference ?? "",
     subtitle: payload.subtitle ?? "",
+    tafseer: payload.tafseer ?? "",
   };
 
   items[index] = updated;
@@ -113,7 +127,36 @@ export async function saveTodayDailyItem(
   };
 }
 
-export async function getDailyJsonEntryCount(): Promise<number> {
+export async function addDailyItem(
+  type: DailyJsonType,
+  payload: Omit<DailyJsonItem, "id">
+): Promise<DailyJsonItem & { type: DailyJsonType }> {
+  const items = await readDailyItems(type);
+
+  // Find next valid ID
+  const maxId = items.length > 0 ? Math.max(...items.map(item => item.id || 0)) : 0;
+  const newId = maxId + 1;
+
+  const newItem: DailyJsonItem = {
+    id: newId,
+    arabic: payload.arabic ?? "",
+    english: payload.english,
+    translation: payload.translation ?? "",
+    reference: payload.reference ?? "",
+    subtitle: payload.subtitle ?? "",
+    tafseer: payload.tafseer ?? "",
+  };
+
+  items.push(newItem);
+  await writeDailyItems(type, items);
+
+  return {
+    type,
+    ...newItem,
+  };
+}
+
+export async function getDailyJsonEntryCount(): Promise<EntryCountResult> {
   const [ayahs, hadiths, duas, reminders] = await Promise.all([
     readDailyItems("ayah"),
     readDailyItems("hadith"),
@@ -121,5 +164,11 @@ export async function getDailyJsonEntryCount(): Promise<number> {
     readDailyItems("reminder"),
   ]);
 
-  return ayahs.length + hadiths.length + duas.length + reminders.length;
+  return {
+    ayah: ayahs.length,
+    hadith: hadiths.length,
+    dua: duas.length,
+    reminder: reminders.length,
+    total: ayahs.length + hadiths.length + duas.length + reminders.length,
+  };
 }
