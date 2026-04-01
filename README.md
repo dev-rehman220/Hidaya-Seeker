@@ -13,7 +13,7 @@ A modern full-stack Islamic web application built with **Next.js 14**, **MongoDB
 | 📰 **Posts & Videos** | Blog-style posts and YouTube-embedded video posts |
 | 🕌 **Islamic Tools** | Prayer times (by GPS), Qibla direction, Zakat calculator |
 | 📅 **Hijri Calendar** | Gregorian ↔ Hijri date converter via Aladhan API |
-| 💚 **Donate Page** | Multi-currency donation UI with IP-based currency detection and JazzCash payment routing |
+| 💚 **Donate Page** | Multi-currency donation UI with admin-managed bank cards, copy-to-clipboard details, and screenshot proof upload |
 | 🔐 **Auth System** | Register, login, forgot password (email reset), account settings |
 | 🛡️ **Admin Dashboard** | Full CMS: manage daily content, create/edit/delete/publish posts |
 | 🌗 **Dark / Light Mode** | System-aware with manual toggle |
@@ -79,41 +79,21 @@ Open [http://localhost:3000](http://localhost:3000).
 | `EMAIL_SERVER_USER` | ✅ | SMTP username / Gmail address |
 | `EMAIL_SERVER_PASSWORD` | ✅ | SMTP password / Gmail App Password |
 | `EMAIL_FROM` | ✅ | From name + address for emails |
-| `PAYMENT_PROVIDER` | ⚠️ | Payment gateway key. Default: `jazzcash` |
-| `JAZZCASH_CHECKOUT_URL` | ⚠️ | JazzCash checkout endpoint URL |
-| `JAZZCASH_MERCHANT_ID` | ⚠️ | JazzCash merchant ID |
-| `JAZZCASH_PASSWORD` | ⚠️ | JazzCash merchant password |
-| `JAZZCASH_INTEGRITY_SALT` | ⚠️ | JazzCash integrity salt for secure hashing |
-| `JAZZCASH_SUB_MERCHANT_ID` | ⚠️ | Optional sub-merchant ID |
-| `JAZZCASH_BANK_ID` | ⚠️ | Optional bank ID |
-| `JAZZCASH_PRODUCT_ID` | ⚠️ | Optional product ID |
-| `JAZZCASH_API_VERSION` | ⚠️ | JazzCash API version (default `1.1`) |
-| `JAZZCASH_LANGUAGE` | ⚠️ | Request language (default `EN`) |
-| `JAZZCASH_TRANSACTION_CURRENCY` | ⚠️ | Settlement currency (default `PKR`) |
-| `JAZZCASH_RETURN_URL` | ⚠️ | Return/callback endpoint URL |
-| `PAYMENT_WEBHOOK_SECRET` | ⚠️ | Shared secret to protect payment webhook route |
-| `JAZZCASH_WEBHOOK_SECRET` | ⚠️ | JazzCash-specific webhook secret (overrides `PAYMENT_WEBHOOK_SECRET`) |
+| `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` | ⚠️ | Cloudinary cloud name for screenshot uploads |
+| `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET` | ⚠️ | Unsigned Cloudinary upload preset for payment proof images |
 
-## JazzCash Integration Steps (After Code Integration)
+## Manual Donation Flow Setup
 
 1. Copy env template and set real credentials:
 	- `cp .env.local.example .env.local`
-	- Fill all `JAZZCASH_*` values from JazzCash merchant dashboard.
-2. Set callback URL in JazzCash portal to:
-	- `https://your-domain.com/api/payments/webhook`
-3. Set webhook/signature secret headers:
-	- If you send `x-jazzcash-signature` (HMAC SHA-256 of raw JSON body), set `JAZZCASH_WEBHOOK_SECRET`.
-	- If you rely on secure hash in payload (`pp_SecureHash`), set `JAZZCASH_INTEGRITY_SALT`.
-4. For local testing, expose localhost with a tunnel (e.g. ngrok) and set:
-	- `JAZZCASH_RETURN_URL=https://<your-ngrok>/api/payments/webhook`
-5. Start app and test hosted checkout flow:
+	- Fill `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` and `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`.
+2. In Cloudinary, create an unsigned preset restricted to image uploads.
+3. Start app and test donation proof flow:
 	- `npm run dev`
-	- Submit donation on `/donate`, confirm redirect to JazzCash page.
-6. Verify webhook writes status updates:
-	- Confirm donation row in admin finance updates from `pending` to final state.
-7. Go live safely:
-	- Switch `JAZZCASH_CHECKOUT_URL` from sandbox to production endpoint.
-	- Rotate secrets and re-test one live low-value transaction.
+	- Submit transfer details + screenshot on `/donate`.
+4. Verify admin finance panel:
+	- Confirm payment card appears on donate page.
+	- Confirm donation record includes pending status and proof URL.
 
 > Generate `NEXTAUTH_SECRET`:  
 > `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
@@ -133,7 +113,7 @@ src/
 │   └── ...               # Other pages (donate, calendar, posts, etc.)
 ├── components/           # Reusable UI components
 ├── lib/                  # Utilities (auth, mongodb, prayer times, bookmarks)
-├── models/               # Mongoose schemas (User, Post, DailyContent)
+├── models/               # Mongoose schemas (User, Post, DailyContent, Donation, PaymentCard)
 └── types/                # TypeScript type augmentations
 ```
 
