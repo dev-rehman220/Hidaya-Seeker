@@ -29,6 +29,7 @@ import {
     AlertTriangle,
     Image as ImageIcon,
     Download,
+    Trash2,
     ChevronLeft,
     ChevronRight as ChevronRightIcon,
 } from "lucide-react";
@@ -65,7 +66,7 @@ interface FinanceData {
         overallHealth: "healthy" | "monitor" | "critical";
     };
     methods: {
-        method: "card" | "bank" | "wallet";
+        method: string;
         total: number;
         succeeded: number;
         pending: number;
@@ -82,10 +83,15 @@ interface FinanceData {
         cause: string;
         donationType: string;
         paymentMethod: string;
-        provider?: "jazzcash" | "manual";
+        provider?: "manual";
         paymentStatus: "succeeded" | "pending" | "failed";
+        verificationStatus?: "pending" | "verified" | "rejected";
         transactionId: string;
         gatewayReference?: string;
+        paymentProofUrl?: string;
+        meta?: {
+            paymentCardLabel?: string;
+        };
         createdAt: string;
         updatedAt?: string;
     }[];
@@ -176,10 +182,10 @@ function AdminPageInner() {
         }
     };
 
-    const handleSimulateWebhook = async (transactionId: string, paymentStatus: "succeeded" | "pending" | "failed") => {
+    const handleUpdatePaymentStatus = async (transactionId: string, paymentStatus: "succeeded" | "pending" | "failed") => {
         setUpdatingPayment(transactionId + paymentStatus);
         try {
-            const res = await fetch("/api/admin/finance/test-webhook", {
+            const res = await fetch("/api/admin/finance/update-status", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ transactionId, paymentStatus }),
@@ -187,14 +193,14 @@ function AdminPageInner() {
 
             const data = await res.json();
             if (!res.ok) {
-                throw new Error(data?.message || "Failed to simulate webhook update");
+                throw new Error(data?.message || "Failed to update payment status");
             }
 
             setMessage({ type: "success", text: `Payment updated to ${paymentStatus} for ${transactionId}.` });
             setTimeout(() => setMessage(null), 4000);
             await fetchFinance(financePage);
         } catch (error: any) {
-            setMessage({ type: "error", text: error?.message || "Failed to simulate webhook update." });
+            setMessage({ type: "error", text: error?.message || "Failed to update payment status." });
             setTimeout(() => setMessage(null), 4000);
         } finally {
             setUpdatingPayment(null);
@@ -430,7 +436,7 @@ function AdminPageInner() {
                         loading={financeLoading}
                         page={financePage}
                         onPageChange={(page) => fetchFinance(page)}
-                        onSimulateWebhook={handleSimulateWebhook}
+                        onSimulateWebhook={handleUpdatePaymentStatus}
                         updatingPayment={updatingPayment}
                     />
                 )}
@@ -599,6 +605,89 @@ function FinanceManager({
     onSimulateWebhook: (transactionId: string, paymentStatus: "succeeded" | "pending" | "failed") => void;
     updatingPayment: string | null;
 }) {
+    const [cards, setCards] = useState<any[]>([]);
+    const [cardsLoading, setCardsLoading] = useState(true);
+    const [cardsSaving, setCardsSaving] = useState(false);
+    const [cardsDeleting, setCardsDeleting] = useState<string | null>(null);
+    const [cardForm, setCardForm] = useState({
+        label: "",
+        accountTitle: "",
+        accountNumber: "",
+        bankName: "",
+        iban: "",
+        instructions: "",
+        sortOrder: "0",
+        isActive: true,
+    });
+
+    useEffect(() => {
+        const fetchCards = async () => {
+            setCardsLoading(true);
+            try {
+                const res = await fetch("/api/admin/payment-cards");
+                if (res.ok) {
+                    setCards(await res.json());
+                }
+            } catch (error) {
+                console.error("Failed to fetch payment cards", error);
+            } finally {
+                setCardsLoading(false);
+            }
+        };
+
+        fetchCards();
+    }, []);
+
+    const handleCreateCard = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setCardsSaving(true);
+        try {
+            const res = await fetch("/api/admin/payment-cards", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...cardForm,
+                    sortOrder: Number(cardForm.sortOrder || 0),
+                }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data?.message || "Failed to create card");
+
+            setCards((prev) => [...prev, data.card].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)));
+            setCardForm({
+                label: "",
+                accountTitle: "",
+                accountNumber: "",
+                bankName: "",
+                iban: "",
+                instructions: "",
+                sortOrder: "0",
+                isActive: true,
+            });
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setCardsSaving(false);
+        }
+    };
+
+    const handleDeleteCard = async (id: string) => {
+        if (!confirm("Delete this payment card?")) return;
+        setCardsDeleting(id);
+        try {
+            const res = await fetch(`/api/admin/payment-cards/${id}`, { method: "DELETE" });
+            if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data?.message || "Failed to delete card");
+            }
+            setCards((prev) => prev.filter((card) => card._id !== id));
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setCardsDeleting(null);
+        }
+    };
+
     const healthColor = (health: "healthy" | "monitor" | "critical") => {
         if (health === "healthy") return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
         if (health === "monitor") return "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400";
@@ -620,6 +709,65 @@ function FinanceManager({
 
     return (
         <div className="space-y-6">
+            <div className="bg-white dark:bg-neutral-dark rounded-2xl border border-primary/10 shadow-sm overflow-hidden">
+                <div className="bg-primary/5 px-6 py-4 border-b border-primary/10">
+                    <h2 className="font-bold text-primary dark:text-primary-light text-lg">Donation Payment Cards</h2>
+                </div>
+                <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-5">
+                    <form onSubmit={handleCreateCard} className="space-y-3 rounded-xl border border-primary/10 p-4 bg-neutral-light/20 dark:bg-black/10">
+                        <h3 className="font-semibold text-sm">Add New Card</h3>
+                        <input value={cardForm.label} onChange={(e) => setCardForm((prev) => ({ ...prev, label: e.target.value }))} className="w-full p-2.5 rounded-lg border border-primary/15 bg-white dark:bg-neutral-dark text-sm" placeholder="Label (e.g. HBL Main Account)" required />
+                        <input value={cardForm.accountTitle} onChange={(e) => setCardForm((prev) => ({ ...prev, accountTitle: e.target.value }))} className="w-full p-2.5 rounded-lg border border-primary/15 bg-white dark:bg-neutral-dark text-sm" placeholder="Account title" required />
+                        <input value={cardForm.accountNumber} onChange={(e) => setCardForm((prev) => ({ ...prev, accountNumber: e.target.value }))} className="w-full p-2.5 rounded-lg border border-primary/15 bg-white dark:bg-neutral-dark text-sm" placeholder="Account number" required />
+                        <input value={cardForm.bankName} onChange={(e) => setCardForm((prev) => ({ ...prev, bankName: e.target.value }))} className="w-full p-2.5 rounded-lg border border-primary/15 bg-white dark:bg-neutral-dark text-sm" placeholder="Bank name" />
+                        <input value={cardForm.iban} onChange={(e) => setCardForm((prev) => ({ ...prev, iban: e.target.value }))} className="w-full p-2.5 rounded-lg border border-primary/15 bg-white dark:bg-neutral-dark text-sm" placeholder="IBAN (optional)" />
+                        <textarea value={cardForm.instructions} onChange={(e) => setCardForm((prev) => ({ ...prev, instructions: e.target.value }))} className="w-full p-2.5 rounded-lg border border-primary/15 bg-white dark:bg-neutral-dark text-sm min-h-[70px]" placeholder="Short instructions" />
+                        <div className="grid grid-cols-2 gap-3">
+                            <input type="number" value={cardForm.sortOrder} onChange={(e) => setCardForm((prev) => ({ ...prev, sortOrder: e.target.value }))} className="w-full p-2.5 rounded-lg border border-primary/15 bg-white dark:bg-neutral-dark text-sm" placeholder="Sort order" />
+                            <label className="inline-flex items-center gap-2 text-sm font-medium">
+                                <input type="checkbox" checked={cardForm.isActive} onChange={(e) => setCardForm((prev) => ({ ...prev, isActive: e.target.checked }))} />
+                                Active
+                            </label>
+                        </div>
+                        <button type="submit" disabled={cardsSaving} className="w-full py-2.5 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-light transition-colors disabled:opacity-50">
+                            {cardsSaving ? "Saving..." : "Save Card"}
+                        </button>
+                    </form>
+
+                    <div className="space-y-3">
+                        <h3 className="font-semibold text-sm">Current Cards</h3>
+                        {cardsLoading ? (
+                            <div className="text-sm opacity-60">Loading cards...</div>
+                        ) : cards.length === 0 ? (
+                            <div className="text-sm opacity-60">No payment cards added yet.</div>
+                        ) : (
+                            cards.map((card) => (
+                                <div key={card._id} className="rounded-xl border border-primary/10 p-3 bg-neutral-light/20 dark:bg-black/10">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="text-sm">
+                                            <p className="font-semibold">{card.label}</p>
+                                            <p className="opacity-70">{card.accountTitle} - {card.accountNumber}</p>
+                                            {card.bankName ? <p className="opacity-70">{card.bankName}</p> : null}
+                                            {card.iban ? <p className="opacity-70">IBAN: {card.iban}</p> : null}
+                                            <p className="text-xs opacity-60 mt-1">{card.isActive ? "Active" : "Inactive"} / sort: {card.sortOrder || 0}</p>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleDeleteCard(card._id)}
+                                            disabled={cardsDeleting === card._id}
+                                            className="inline-flex items-center gap-1 text-xs text-red-600 hover:text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800 rounded-lg px-2 py-1"
+                                        >
+                                            <Trash2 className="w-3 h-3" />
+                                            {cardsDeleting === card._id ? "..." : "Delete"}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            </div>
+
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard title="Total Donations (USD)" value={`$${finance.totals.totalDonationsUsd.toFixed(2)}`} icon={<Wallet className="w-5 h-5" />} color="text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" />
                 <StatCard title="Records" value={finance.totals.totalRecords} icon={<FileText className="w-5 h-5" />} color="text-blue-600 bg-blue-50 dark:bg-blue-900/20" />
@@ -680,7 +828,7 @@ function FinanceManager({
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden md:table-cell">Details</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden lg:table-cell">Date</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden lg:table-cell">Last Update</th>
-                                <th className="text-right px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Test</th>
+                                <th className="text-right px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Update</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -703,7 +851,11 @@ function FinanceManager({
                                             {donation.paymentStatus}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-xs opacity-70 hidden md:table-cell">{donation.cause} / {donation.donationType} / {donation.provider || "manual"} / {donation.transactionId}</td>
+                                    <td className="px-4 py-3 text-xs opacity-70 hidden md:table-cell">
+                                        {donation.cause} / {donation.donationType} / {donation.provider || "manual"} / {donation.transactionId}
+                                        {donation.meta?.paymentCardLabel ? <div>Card: {donation.meta.paymentCardLabel}</div> : null}
+                                        {donation.paymentProofUrl ? <a href={donation.paymentProofUrl} target="_blank" rel="noreferrer" className="text-primary hover:underline">View Proof</a> : null}
+                                    </td>
                                     <td className="px-4 py-3 text-xs opacity-60 hidden lg:table-cell">{new Date(donation.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
                                     <td className="px-4 py-3 text-xs opacity-60 hidden lg:table-cell">
                                         {new Date(donation.updatedAt || donation.createdAt).toLocaleString("en-US", {
