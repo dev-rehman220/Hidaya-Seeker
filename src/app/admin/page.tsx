@@ -77,9 +77,6 @@ interface FinanceData {
     recentDonations: {
         _id: string;
         donorName: string;
-        amount: number;
-        currency: string;
-        currencySymbol: string;
         cause: string;
         donationType: string;
         paymentMethod: string;
@@ -769,10 +766,10 @@ function FinanceManager({
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Total Donations (USD)" value={`$${finance.totals.totalDonationsUsd.toFixed(2)}`} icon={<Wallet className="w-5 h-5" />} color="text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20" />
                 <StatCard title="Records" value={finance.totals.totalRecords} icon={<FileText className="w-5 h-5" />} color="text-blue-600 bg-blue-50 dark:bg-blue-900/20" />
                 <StatCard title="Succeeded" value={finance.totals.succeeded} icon={<ShieldCheck className="w-5 h-5" />} color="text-green-600 bg-green-50 dark:bg-green-900/20" />
                 <StatCard title="Failed" value={finance.totals.failed} icon={<AlertTriangle className="w-5 h-5" />} color="text-red-600 bg-red-50 dark:bg-red-900/20" />
+                <StatCard title="Pending" value={finance.totals.pending} icon={<Wallet className="w-5 h-5" />} color="text-amber-600 bg-amber-50 dark:bg-amber-900/20" />
             </div>
 
             <div className="bg-white dark:bg-neutral-dark rounded-2xl border border-primary/10 shadow-sm overflow-hidden">
@@ -822,9 +819,9 @@ function FinanceManager({
                         <thead>
                             <tr className="border-b border-primary/10 bg-primary/5">
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Donor</th>
-                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Amount</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Method</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Status</th>
+                                <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60">Proof</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden md:table-cell">Details</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden lg:table-cell">Date</th>
                                 <th className="text-left px-4 py-3 text-xs font-bold uppercase tracking-wide opacity-60 hidden lg:table-cell">Last Update</th>
@@ -839,7 +836,6 @@ function FinanceManager({
                             ) : finance.recentDonations.map((donation) => (
                                 <tr key={donation._id} className="hover:bg-primary/5 transition-colors">
                                     <td className="px-4 py-3 text-sm font-semibold">{donation.donorName || "Anonymous"}</td>
-                                    <td className="px-4 py-3 text-sm">{donation.currencySymbol}{donation.amount.toLocaleString()} {donation.currency}</td>
                                     <td className="px-4 py-3 text-xs capitalize">{donation.paymentMethod}</td>
                                     <td className="px-4 py-3">
                                         <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${donation.paymentStatus === "succeeded"
@@ -850,6 +846,19 @@ function FinanceManager({
                                             }`}>
                                             {donation.paymentStatus}
                                         </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        {donation.paymentProofUrl ? (
+                                            <a href={donation.paymentProofUrl} target="_blank" rel="noreferrer" title="Open full proof">
+                                                <img
+                                                    src={donation.paymentProofUrl}
+                                                    alt="Payment proof"
+                                                    className="w-14 h-14 rounded-lg object-cover border border-primary/15"
+                                                />
+                                            </a>
+                                        ) : (
+                                            <span className="text-xs opacity-50">No proof</span>
+                                        )}
                                     </td>
                                     <td className="px-4 py-3 text-xs opacity-70 hidden md:table-cell">
                                         {donation.cause} / {donation.donationType} / {donation.provider || "manual"} / {donation.transactionId}

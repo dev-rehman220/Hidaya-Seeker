@@ -14,8 +14,8 @@ const DonationSchema = new Schema({
     },
     amount: {
         type: Number,
-        required: true,
-        min: 0.01,
+        default: 0,
+        min: 0,
     },
     currency: {
         type: String,
@@ -29,7 +29,7 @@ const DonationSchema = new Schema({
     },
     amountUsd: {
         type: Number,
-        required: true,
+        default: 0,
         min: 0,
     },
     cause: {

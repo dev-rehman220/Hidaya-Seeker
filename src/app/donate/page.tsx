@@ -6,11 +6,8 @@ import { Heart, RefreshCw, Globe, ChevronDown, X, Check, Copy, Image as ImageIco
 interface CurrencyInfo {
     country: string;
     code: string;
-    symbol: string;
     name: string;
-    rate: number;
     flag: string;
-    presets: number[];
 }
 
 interface PaymentCard {
@@ -48,15 +45,9 @@ const ALL_COUNTRIES: { code: string; name: string; flag: string; currency: strin
 ];
 
 const DEFAULT_CURRENCY: CurrencyInfo = {
-    country: "US", code: "USD", symbol: "$", name: "US Dollar",
-    rate: 1, flag: "🇺🇸", presets: [10, 25, 50, 100, 500],
+    country: "US", code: "USD", name: "US Dollar",
+    flag: "🇺🇸",
 };
-
-function formatAmount(amount: number, symbol: string): string {
-    if (amount >= 1000000) return `${symbol}${(amount / 1000000).toFixed(1)}M`;
-    if (amount >= 1000) return `${symbol}${(amount / 1000).toFixed(amount >= 10000 ? 0 : 1)}k`;
-    return `${symbol}${amount.toLocaleString()}`;
-}
 
 export default function DonatePage() {
     const [currency, setCurrency] = useState<CurrencyInfo>(DEFAULT_CURRENCY);
@@ -64,8 +55,6 @@ export default function DonatePage() {
     const [showCountryPicker, setShowCountryPicker] = useState(false);
     const [countrySearch, setCountrySearch] = useState("");
 
-    const [amount, setAmount] = useState<number | "custom">(50);
-    const [customAmount, setCustomAmount] = useState("");
     const [donationType, setDonationType] = useState<"one-time" | "monthly">("one-time");
     const [cause, setCause] = useState<"general" | "zakat" | "sadaqah">("general");
     const [donorName, setDonorName] = useState("");
@@ -86,7 +75,6 @@ export default function DonatePage() {
             .then((data: CurrencyInfo) => {
                 if (data?.code) {
                     setCurrency(data);
-                    setAmount(data.presets[2] ?? 50);
                 }
             })
             .catch(() => {})
@@ -115,16 +103,10 @@ export default function DonatePage() {
             const data: CurrencyInfo = await r.json();
             if (data?.code) {
                 setCurrency(data);
-                setAmount(data.presets[2]);
-                setCustomAmount("");
             }
         } catch { /* fallback silently */ }
         finally { setCurrencyLoading(false); }
     };
-
-    const displayAmount = amount === "custom"
-        ? (customAmount ? `${currency.symbol}${customAmount}` : "")
-        : formatAmount(amount as number, currency.symbol);
 
     const selectedCard = paymentCards.find((card) => card._id === selectedCardId) || null;
 
@@ -178,13 +160,6 @@ export default function DonatePage() {
         setError("");
         setLoading(true);
 
-        const numericAmount = amount === "custom" ? Number(customAmount) : Number(amount);
-        if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
-            setLoading(false);
-            setError("Please enter a valid donation amount.");
-            return;
-        }
-
         if (!selectedCardId || !selectedCard) {
             setLoading(false);
             setError("Please select a payment card.");
@@ -206,10 +181,6 @@ export default function DonatePage() {
                 body: JSON.stringify({
                     donorName: donorName.trim() || "Anonymous",
                     donorEmail: donorEmail.trim(),
-                    amount: numericAmount,
-                    currency: currency.code,
-                    currencySymbol: currency.symbol,
-                    rate: currency.rate,
                     cause,
                     donationType,
                     paymentMethod: "bank-transfer",
@@ -252,12 +223,12 @@ export default function DonatePage() {
                     <div>
                         <h2 className="text-2xl font-bold text-primary dark:text-primary-light mb-2">JazakAllah Khayran!</h2>
                         <p className="text-neutral-dark/70 dark:text-neutral-light/70">
-                            Your donation of <strong>{displayAmount}</strong> was submitted and is pending manual verification.
+                            Your donation proof was submitted and is pending manual verification.
                             {" "}May Allah accept it as Sadaqah Jariyah.
                         </p>
                     </div>
                     <p className="font-arabic text-xl text-secondary" dir="rtl">اللَّهُمَّ تَقَبَّلْ مِنَّا</p>
-                    <button onClick={() => { setSuccess(false); setAmount(currency.presets[2]); setCustomAmount(""); setError(""); }} className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors">
+                    <button onClick={() => { setSuccess(false); setError(""); }} className="w-full py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-light transition-colors">
                         Donate Again
                     </button>
                 </div>
@@ -332,7 +303,7 @@ export default function DonatePage() {
                         ) : (
                             <p className="text-sm font-medium">
                                 <span className="text-lg mr-1">{currency.flag}</span>
-                                Showing prices in <strong>{currency.code}</strong> ({currency.name})
+                                Region detected as <strong>{currency.code}</strong> ({currency.name})
                             </p>
                         )}
                     </div>
@@ -510,48 +481,12 @@ export default function DonatePage() {
                                     )}
                                 </div>
 
-                                {/* Amount */}
-                                <div>
-                                    <h3 className="font-semibold mb-3 text-sm">
-                                        Amount
-                                        {!currencyLoading && <span className="ml-2 text-[11px] text-primary/60 font-normal">({currency.code})</span>}
-                                    </h3>
-                                    {currencyLoading ? (
-                                        <div className="grid grid-cols-3 gap-2 mb-3">
-                                            {[...Array(6)].map((_, i) => (
-                                                <div key={i} className="h-10 bg-neutral-light/70 dark:bg-white/5 rounded-xl animate-pulse" />
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="grid grid-cols-3 gap-2 mb-3">
-                                            {currency.presets.map((a) => (
-                                                <button key={a} type="button" onClick={() => setAmount(a)}
-                                                    className={`py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${amount === a ? "border-primary text-primary bg-primary/5" : "border-transparent bg-neutral-light/50 dark:bg-black/20 hover:bg-neutral-light dark:hover:bg-black/40"}`}>
-                                                    {formatAmount(a, currency.symbol)}
-                                                </button>
-                                            ))}
-                                            <button type="button" onClick={() => setAmount("custom")}
-                                                className={`py-2.5 rounded-xl font-bold text-sm transition-all border-2 ${amount === "custom" ? "border-primary text-primary bg-primary/5" : "border-transparent bg-neutral-light/50 dark:bg-black/20 hover:bg-neutral-light dark:hover:bg-black/40"}`}>
-                                                Custom
-                                            </button>
-                                        </div>
-                                    )}
-                                    {amount === "custom" && (
-                                        <div className="relative mt-2">
-                                            <span className="absolute left-4 top-3.5 text-sm font-bold opacity-50">{currency.symbol}</span>
-                                            <input type="number" min="1" value={customAmount} onChange={e => setCustomAmount(e.target.value)}
-                                                className="w-full pl-9 pr-4 py-3 bg-white dark:bg-neutral-dark border-2 border-primary/20 rounded-xl focus:outline-none focus:border-primary text-lg font-bold"
-                                                placeholder="0.00" required />
-                                        </div>
-                                    )}
-                                </div>
-
                                 {/* Submit Action */}
                                 <div className="pt-4 border-t border-primary/10">
                                     {error && <p className="mb-3 text-sm text-red-600 dark:text-red-400">{error}</p>}
                                     <button
                                         type="submit"
-                                        disabled={loading || (amount === "custom" && !customAmount) || currencyLoading}
+                                        disabled={loading || currencyLoading}
                                         className="w-full flex justify-center items-center py-4 bg-primary text-white rounded-xl font-bold text-base hover:bg-primary-light transition-all disabled:opacity-70 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                                     >
                                         {loading ? (
@@ -559,7 +494,7 @@ export default function DonatePage() {
                                         ) : (
                                             <>
                                                 <ImageIcon className="w-4 h-4 mr-2" />
-                                                Submit Donation Proof for {displayAmount}{donationType === "monthly" ? " Monthly" : ""}
+                                                Submit Donation Proof{donationType === "monthly" ? " (Monthly)" : ""}
                                             </>
                                         )}
                                     </button>
