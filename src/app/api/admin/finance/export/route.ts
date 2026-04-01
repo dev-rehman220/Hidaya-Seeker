@@ -26,7 +26,7 @@ export async function GET() {
 
         const donations = await Donation.find({})
             .sort({ createdAt: -1 })
-            .select("donorName donorEmail amount currency currencySymbol cause donationType paymentMethod paymentStatus transactionId gatewayReference createdAt")
+            .select("donorName donorEmail amount currency currencySymbol cause donationType paymentMethod paymentStatus verificationStatus transactionId gatewayReference paymentProofUrl meta createdAt")
             .lean();
 
         const header = [
@@ -41,7 +41,10 @@ export async function GET() {
             "donation_type",
             "payment_method",
             "payment_status",
+            "verification_status",
             "gateway_reference",
+            "payment_card_label",
+            "payment_proof_url",
         ];
 
         const rows = donations.map((d: any) => [
@@ -56,7 +59,10 @@ export async function GET() {
             d.donationType,
             d.paymentMethod,
             d.paymentStatus,
+            d.verificationStatus || "",
             d.gatewayReference || "",
+            d.meta?.paymentCardLabel || "",
+            d.paymentProofUrl || "",
         ]);
 
         const csv = [header, ...rows]
