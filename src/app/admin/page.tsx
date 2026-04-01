@@ -44,6 +44,7 @@ interface ContentItem {
     translation?: string;
     reference?: string;
     subtitle?: string;
+    tafseer?: string;
 }
 
 interface Stats {
@@ -118,8 +119,23 @@ function AdminPageInner() {
     const [deletingDonation, setDeletingDonation] = useState<string | null>(null);
 
     const [content, setContent] = useState<Record<ContentType, ContentItem>>({
-        ayah: { type: "ayah", arabic: "", english: "", translation: "", reference: "" },
-        hadith: { type: "hadith", arabic: "", english: "", reference: "", subtitle: "" },
+        ayah: { type: "ayah", arabic: "", english: "", translation: "", reference: "", tafseer: "" },
+        hadith: { type: "hadith", arabic: "", english: "", reference: "", subtitle: "", tafseer: "" },
+        dua: { type: "dua", arabic: "", english: "", translation: "", reference: "" },
+        reminder: { type: "reminder", english: "" },
+    });
+
+    const [entryCounts, setEntryCounts] = useState<Record<ContentType, number>>({
+        ayah: 0,
+        hadith: 0,
+        dua: 0,
+        reminder: 0,
+    });
+
+    const [addingEntry, setAddingEntry] = useState<ContentType | null>(null);
+    const [newEntryData, setNewEntryData] = useState<Record<ContentType, Partial<ContentItem>>>({
+        ayah: { type: "ayah", arabic: "", english: "", translation: "", reference: "", tafseer: "" },
+        hadith: { type: "hadith", arabic: "", english: "", reference: "", subtitle: "", tafseer: "" },
         dua: { type: "dua", arabic: "", english: "", translation: "", reference: "" },
         reminder: { type: "reminder", english: "" },
     });
@@ -132,7 +148,7 @@ function AdminPageInner() {
                 router.push("/");
                 return;
             }
-            Promise.all([fetchContent(), fetchStats(), fetchFinance(1)]).finally(() => setLoading(false));
+            Promise.all([fetchContent(), fetchStats(), fetchFinance(1), fetchEntryCounts()]).finally(() => setLoading(false));
         }
     }, [status, session]);
 
@@ -252,6 +268,56 @@ function AdminPageInner() {
 
     const handleChange = (type: ContentType, field: keyof ContentItem, value: string) => {
         setContent((prev) => ({
+            ...prev,
+            [type]: { ...prev[type], [field]: value },
+        }));
+    };
+
+    const fetchEntryCounts = async () => {
+        try {
+            const res = await fetch("/api/content/items");
+            if (res.ok) {
+                const data = await res.json();
+                setEntryCounts(data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch entry counts", error);
+        }
+    };
+
+    const handleAddEntry = async (type: ContentType) => {
+        setAddingEntry(type);
+        setMessage(null);
+        try {
+            const res = await fetch("/api/content", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...newEntryData[type], action: "add" }),
+            });
+            const result = await res.json();
+            if (res.ok) {
+                setMessage({ type: "success", text: `New ${type} entry added successfully! Total entries: ${entryCounts[type] + 1}` });
+                setEntryCounts((prev) => ({
+                    ...prev,
+                    [type]: prev[type] + 1,
+                }));
+                setNewEntryData((prev) => ({
+                    ...prev,
+                    [type]: { type, arabic: "", english: "", translation: "", reference: "", subtitle: "", tafseer: "" },
+                }));
+                setTimeout(() => setMessage(null), 4000);
+            } else {
+                setMessage({ type: "error", text: result?.message || `Failed to add ${type}.` });
+            }
+        } catch (error) {
+            setMessage({ type: "error", text: "A network error occurred." });
+        } finally {
+            setAddingEntry(null);
+        }
+    };
+
+    const handleNewEntryChange = (type: ContentType, field: string, value: string) => {
+        setNewEntryData((prev) => ({
             ...prev,
             [type]: { ...prev[type], [field]: value },
         }));
@@ -440,10 +506,134 @@ function AdminPageInner() {
                 {/* TAB: CMS */}
                 {activeTab === "cms" && (
                     <div className="space-y-8">
-                        <AdminSection title="Daily Qur'an Ayah" icon={<BookOpen className="text-primary" />} type="ayah" data={content.ayah} onSave={() => handleSave("ayah")} onChange={handleChange} saving={saving === "ayah"} fields={[{ label: "Arabic Text", name: "arabic", type: "textarea", dir: "rtl" }, { label: "English Translation", name: "english", type: "textarea" }, { label: "Urdu/Secondary Translation", name: "translation", type: "textarea", dir: "rtl" }, { label: "Reference (e.g. Surah Ash-Sharh, Ayah 5)", name: "reference", type: "input" }]} />
-                        <AdminSection title="Daily Hadith" icon={<Library className="text-secondary-dark dark:text-secondary-light" />} type="hadith" data={content.hadith} onSave={() => handleSave("hadith")} onChange={handleChange} saving={saving === "hadith"} fields={[{ label: "Arabic Text", name: "arabic", type: "textarea", dir: "rtl" }, { label: "English Translation", name: "english", type: "textarea" }, { label: "Reference (e.g. Sahih al-Bukhari 1)", name: "reference", type: "input" }, { label: "Subtitle/Book", name: "subtitle", type: "input" }]} />
+                        <AdminSection title="Daily Qur'an Ayah" icon={<BookOpen className="text-primary" />} type="ayah" data={content.ayah} onSave={() => handleSave("ayah")} onChange={handleChange} saving={saving === "ayah"} fields={[{ label: "Arabic Text", name: "arabic", type: "textarea", dir: "rtl" }, { label: "English Translation", name: "english", type: "textarea" }, { label: "Urdu/Secondary Translation", name: "translation", type: "textarea", dir: "rtl" }, { label: "Reference (e.g. Surah Ash-Sharh, Ayah 5)", name: "reference", type: "input" }, { label: "Tafseer (Explanation)", name: "tafseer", type: "textarea" }]} />
+                        <AdminSection title="Daily Hadith" icon={<Library className="text-secondary-dark dark:text-secondary-light" />} type="hadith" data={content.hadith} onSave={() => handleSave("hadith")} onChange={handleChange} saving={saving === "hadith"} fields={[{ label: "Arabic Text", name: "arabic", type: "textarea", dir: "rtl" }, { label: "English Translation", name: "english", type: "textarea" }, { label: "Reference (e.g. Sahih al-Bukhari 1)", name: "reference", type: "input" }, { label: "Subtitle/Book", name: "subtitle", type: "input" }, { label: "Tafseer (Explanation)", name: "tafseer", type: "textarea" }]} />
                         <AdminSection title="Dua of the Day" icon={<Heart className="text-red-500" />} type="dua" data={content.dua} onSave={() => handleSave("dua")} onChange={handleChange} saving={saving === "dua"} fields={[{ label: "Arabic Text", name: "arabic", type: "textarea", dir: "rtl" }, { label: "English Translation", name: "english", type: "textarea" }, { label: "Transliteration", name: "translation", type: "textarea" }, { label: "Reference", name: "reference", type: "input" }]} />
                         <AdminSection title="Islamic Reminder" icon={<Star className="text-amber-500" />} type="reminder" data={content.reminder} onSave={() => handleSave("reminder")} onChange={handleChange} saving={saving === "reminder"} fields={[{ label: "Reminder Quote/Text", name: "english", type: "textarea" }]} />
+
+                        {/* Add New Entries Section */}
+                        <div className="bg-white dark:bg-neutral-dark rounded-2xl shadow-sm border border-primary/10 overflow-hidden">
+                            <div className="bg-primary/5 p-5 border-b border-primary/10">
+                                <h2 className="text-lg font-bold text-primary dark:text-primary-light">Add New Daily Content Entries</h2>
+                                <p className="text-sm opacity-60 mt-1">Expand rotation by adding new entries. Current counts displayed below.</p>
+                            </div>
+                            <div className="p-6 space-y-4">
+                                {/* Entry counts display */}
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                                    {(Object.entries(entryCounts) as Array<[ContentType, number]>).map(([type, count]) => (
+                                        <div key={type} className="p-3 rounded-xl bg-neutral-light/30 dark:bg-black/10 border border-primary/10 text-center">
+                                            <p className="text-xs opacity-60 capitalize">{type}s</p>
+                                            <p className="text-2xl font-bold text-primary mt-1">{count}</p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {/* Add entry forms for each type */}
+                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                                    {(["ayah", "hadith", "dua", "reminder"] as ContentType[]).map((type) => (
+                                        <details key={type} className="group border border-primary/10 rounded-xl overflow-hidden">
+                                            <summary className="cursor-pointer bg-neutral-light/20 dark:bg-black/10 p-4 flex items-center justify-between hover:bg-primary/5 transition-colors capitalize font-semibold text-sm">
+                                                <span>Add New {type}</span>
+                                                <ChevronRight className="w-4 h-4 group-open:rotate-90 transition-transform" />
+                                            </summary>
+                                            <div className="p-4 space-y-3 bg-white dark:bg-neutral-dark border-t border-primary/10">
+                                                {type === "ayah" && (
+                                                    <>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Arabic</label>
+                                                            <textarea value={newEntryData.ayah.arabic || ""} onChange={(e) => handleNewEntryChange("ayah", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic text-lg" dir="rtl" placeholder="Arabic text..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">English</label>
+                                                            <textarea value={newEntryData.ayah.english || ""} onChange={(e) => handleNewEntryChange("ayah", "english", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px]" placeholder="English translation..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Transliteration</label>
+                                                            <input type="text" value={newEntryData.ayah.translation || ""} onChange={(e) => handleNewEntryChange("ayah", "translation", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm" placeholder="Transliteration..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Reference</label>
+                                                            <input type="text" value={newEntryData.ayah.reference || ""} onChange={(e) => handleNewEntryChange("ayah", "reference", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm" placeholder="Surah X, Ayah Y..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Tafseer (Explanation)</label>
+                                                            <textarea value={newEntryData.ayah.tafseer || ""} onChange={(e) => handleNewEntryChange("ayah", "tafseer", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[80px]" placeholder="Explanation and meaning..." />
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {type === "hadith" && (
+                                                    <>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Arabic</label>
+                                                            <textarea value={newEntryData.hadith.arabic || ""} onChange={(e) => handleNewEntryChange("hadith", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic text-lg" dir="rtl" placeholder="Arabic text..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">English</label>
+                                                            <textarea value={newEntryData.hadith.english || ""} onChange={(e) => handleNewEntryChange("hadith", "english", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px]" placeholder="English translation..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Reference</label>
+                                                            <input type="text" value={newEntryData.hadith.reference || ""} onChange={(e) => handleNewEntryChange("hadith", "reference", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm" placeholder="Sahih al-Bukhari 1, etc..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Subtitle/Book</label>
+                                                            <input type="text" value={newEntryData.hadith.subtitle || ""} onChange={(e) => handleNewEntryChange("hadith", "subtitle", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm" placeholder="Book or Category..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Tafseer (Explanation)</label>
+                                                            <textarea value={newEntryData.hadith.tafseer || ""} onChange={(e) => handleNewEntryChange("hadith", "tafseer", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[80px]" placeholder="Explanation and meaning..." />
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {type === "dua" && (
+                                                    <>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Arabic</label>
+                                                            <textarea value={newEntryData.dua.arabic || ""} onChange={(e) => handleNewEntryChange("dua", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic text-lg" dir="rtl" placeholder="Arabic dua..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">English</label>
+                                                            <textarea value={newEntryData.dua.english || ""} onChange={(e) => handleNewEntryChange("dua", "english", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px]" placeholder="English translation..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Transliteration</label>
+                                                            <textarea value={newEntryData.dua.translation || ""} onChange={(e) => handleNewEntryChange("dua", "translation", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px]" placeholder="Transliteration..." />
+                                                        </div>
+                                                        <div>
+                                                            <label className="text-xs font-semibold opacity-60">Reference</label>
+                                                            <input type="text" value={newEntryData.dua.reference || ""} onChange={(e) => handleNewEntryChange("dua", "reference", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm" placeholder="Source reference..." />
+                                                        </div>
+                                                    </>
+                                                )}
+                                                {type === "reminder" && (
+                                                    <div>
+                                                        <label className="text-xs font-semibold opacity-60">Reminder Text</label>
+                                                        <textarea value={newEntryData.reminder.english || ""} onChange={(e) => handleNewEntryChange("reminder", "english", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[80px]" placeholder="Islamic reminder or inspirational quote..." />
+                                                    </div>
+                                                )}
+                                                <button
+                                                    onClick={() => handleAddEntry(type)}
+                                                    disabled={addingEntry === type || !newEntryData[type].english}
+                                                    className="w-full py-2 px-4 rounded-lg bg-primary text-white font-semibold text-sm hover:bg-primary-light transition-colors disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
+                                                >
+                                                    {addingEntry === type ? (
+                                                        <>
+                                                            <RefreshCw className="w-4 h-4 animate-spin" />
+                                                            Adding...
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <PlusCircle className="w-4 h-4" />
+                                                            Add {type}
+                                                        </>
+                                                    )}
+                                                </button>
+                                            </div>
+                                        </details>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
