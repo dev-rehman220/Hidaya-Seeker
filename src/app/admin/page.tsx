@@ -115,6 +115,7 @@ function AdminPageInner() {
     const [financeLoading, setFinanceLoading] = useState(true);
     const [financePage, setFinancePage] = useState(1);
     const [updatingPayment, setUpdatingPayment] = useState<string | null>(null);
+    const [deletingDonation, setDeletingDonation] = useState<string | null>(null);
 
     const [content, setContent] = useState<Record<ContentType, ContentItem>>({
         ayah: { type: "ayah", arabic: "", english: "", translation: "", reference: "" },
@@ -201,6 +202,29 @@ function AdminPageInner() {
             setTimeout(() => setMessage(null), 4000);
         } finally {
             setUpdatingPayment(null);
+        }
+    };
+
+    const handleDeleteDonation = async (donationId: string) => {
+        setDeletingDonation(donationId);
+        try {
+            const res = await fetch(`/api/donations/${donationId}`, {
+                method: "DELETE",
+            });
+
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data?.message || "Failed to delete donation");
+            }
+
+            setMessage({ type: "success", text: "Donation deleted successfully." });
+            setTimeout(() => setMessage(null), 4000);
+            await fetchFinance(financePage);
+        } catch (error: any) {
+            setMessage({ type: "error", text: error?.message || "Failed to delete donation." });
+            setTimeout(() => setMessage(null), 4000);
+        } finally {
+            setDeletingDonation(null);
         }
     };
 
@@ -434,7 +458,9 @@ function AdminPageInner() {
                         page={financePage}
                         onPageChange={(page) => fetchFinance(page)}
                         onSimulateWebhook={handleUpdatePaymentStatus}
+                        onDeleteDonation={handleDeleteDonation}
                         updatingPayment={updatingPayment}
+                        deletingDonation={deletingDonation}
                     />
                 )}
             </div>
@@ -593,14 +619,18 @@ function FinanceManager({
     page,
     onPageChange,
     onSimulateWebhook,
+    onDeleteDonation,
     updatingPayment,
+    deletingDonation,
 }: {
     finance: FinanceData | null;
     loading: boolean;
     page: number;
     onPageChange: (page: number) => void;
     onSimulateWebhook: (transactionId: string, paymentStatus: "succeeded" | "pending" | "failed") => void;
+    onDeleteDonation: (donationId: string) => Promise<void>;
     updatingPayment: string | null;
+    deletingDonation: string | null;
 }) {
     const [cards, setCards] = useState<any[]>([]);
     const [cardsLoading, setCardsLoading] = useState(true);
@@ -876,7 +906,7 @@ function FinanceManager({
                                         })}
                                     </td>
                                     <td className="px-4 py-3 text-right">
-                                        <div className="flex items-center justify-end gap-1">
+                                        <div className="flex items-center justify-end gap-1 flex-wrap">
                                             {(["succeeded", "pending", "failed"] as const).map((status) => {
                                                 const key = donation.transactionId + status;
                                                 return (
@@ -896,6 +926,18 @@ function FinanceManager({
                                                     </button>
                                                 );
                                             })}
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    if (confirm("Delete this donation? This action cannot be undone.")) {
+                                                        onDeleteDonation(donation._id);
+                                                    }
+                                                }}
+                                                disabled={deletingDonation === donation._id}
+                                                className="text-[10px] font-semibold px-2 py-1 rounded-md border border-red-300 text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-950/20 transition-colors disabled:opacity-50"
+                                            >
+                                                {deletingDonation === donation._id ? "Deleting..." : "Delete"}
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

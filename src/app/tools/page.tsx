@@ -10,18 +10,21 @@ import {
 } from "@/lib/prayerTimes";
 
 const COUNTRY_CITY_OPTIONS: Record<string, string[]> = {
-    "Pakistan": ["Karachi", "Lahore", "Islamabad", "Rawalpindi", "Peshawar"],
-    "Saudi Arabia": ["Makkah", "Madinah", "Riyadh", "Jeddah", "Dammam"],
-    "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah", "Ajman"],
-    "Turkey": ["Istanbul", "Ankara", "Izmir", "Bursa"],
-    "United Kingdom": ["London", "Birmingham", "Manchester", "Leeds"],
-    "United States": ["New York", "Chicago", "Los Angeles", "Houston"],
-    "Malaysia": ["Kuala Lumpur", "Shah Alam", "Johor Bahru", "Penang"],
-    "Indonesia": ["Jakarta", "Bandung", "Surabaya", "Yogyakarta"],
-    "India": ["Mumbai", "Delhi", "Hyderabad", "Bengaluru"],
-    "Bangladesh": ["Dhaka", "Chittagong", "Sylhet", "Khulna"],
-    "Qatar": ["Doha", "Al Rayyan", "Al Wakrah"],
-    "Kuwait": ["Kuwait City", "Hawalli", "Farwaniya"],
+    "Pakistan": ["Karachi", "Lahore", "Islamabad", "Rawalpindi", "Peshawar", "Multan", "Faisalabad"],
+    "Saudi Arabia": ["Makkah", "Madinah", "Riyadh", "Jeddah", "Dammam", "Abha", "Taif"],
+    "United Arab Emirates": ["Dubai", "Abu Dhabi", "Sharjah", "Ajman", "Ras Al Khaimah", "Fujairah"],
+    "Turkey": ["Istanbul", "Ankara", "Izmir", "Bursa", "Antalya", "Gaziantep"],
+    "United Kingdom": ["London", "Birmingham", "Manchester", "Leeds", "Bradford", "Cambridge"],
+    "United States": ["New York", "Chicago", "Los Angeles", "Houston", "Dallas", "Minneapolis", "Boston"],
+    "Malaysia": ["Kuala Lumpur", "Shah Alam", "Johor Bahru", "Penang", "Selangor", "Klang"],
+    "Indonesia": ["Jakarta", "Bandung", "Surabaya", "Yogyakarta", "Medan", "Semarang"],
+    "India": ["Mumbai", "Delhi", "Hyderabad", "Bengaluru", "Lucknow", "Ahmedabad", "Kolkata"],
+    "Bangladesh": ["Dhaka", "Chittagong", "Sylhet", "Khulna", "Rajshahi", "Barisal"],
+    "Egypt": ["Cairo", "Alexandria", "Giza", "Aswan", "Luxor"],
+    "Jordan": ["Amman", "Zarqa", "Irbid", "Aqaba", "Salt"],
+    "Qatar": ["Doha", "Al Rayyan", "Al Wakrah", "Lusail", "Al Khor"],
+    "Kuwait": ["Kuwait City", "Hawalli", "Farwaniya", "Salmiya", "Sabah Al-Salem"],
+    "Lebanon": ["Beirut", "Tripoli", "Sidon", "Tyre", "Zahlé"],
 };
 
 const COUNTRY_ALIASES: Record<string, string> = {

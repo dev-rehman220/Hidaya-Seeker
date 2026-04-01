@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Library, Bookmark, BookmarkCheck, CalendarDays } from 'lucide-react';
+import { Library, Bookmark, BookmarkCheck, CalendarDays, BookMarked } from 'lucide-react';
 import { isBookmarked, toggleBookmark } from "@/lib/bookmarks";
 
 export default function DailyHadith() {
@@ -9,10 +9,12 @@ export default function DailyHadith() {
         arabic: "إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِکُلِّ امْرِئٍ مَا نَوَى",
         english: "\"Actions are [judged] by intentions (niyyah), so each man will have what he intended.\"",
         reference: "Sahih al-Bukhari 1",
-        subtitle: "Book of Revelation"
+        subtitle: "Book of Revelation",
+        tafseer: "This foundational hadith teaches that the value of our deeds depends on our intentions. External appearances mean nothing without sincere internal purpose."
     });
     const [loading, setLoading] = useState(true);
     const [bookmarked, setBookmarked] = useState(false);
+    const [showTafseer, setShowTafseer] = useState(false);
     const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split("T")[0]);
 
     useEffect(() => {
@@ -70,7 +72,14 @@ export default function DailyHadith() {
                 </div>
 
                 <div className="max-w-4xl mx-auto bg-white dark:bg-neutral-dark rounded-2xl p-8 border border-primary/10 shadow-sm relative group">
-                    <div className="absolute top-4 right-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-4 right-4 z-20 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                            onClick={() => setShowTafseer(!showTafseer)}
+                            className="p-2 rounded-full backdrop-blur-sm bg-primary/10 text-primary hover:bg-primary/20 dark:text-primary-light transition-colors"
+                            title={showTafseer ? "Hide Tafseer" : "Show Tafseer"}
+                        >
+                            <BookMarked className="w-5 h-5" />
+                        </button>
                         <button
                             onClick={handleBookmark}
                             className={`p-2 rounded-full backdrop-blur-sm transition-colors ${bookmarked
@@ -108,6 +117,20 @@ export default function DailyHadith() {
                                         </>
                                     )}
                                 </div>
+                                
+                                {showTafseer && content.tafseer && (
+                                    <div className="mt-6 pt-6 border-t border-primary/20 dark:border-primary/30 animate-in fade-in slide-in-from-top-2 duration-300">
+                                        <div className="bg-primary/5 dark:bg-primary/10 rounded-xl p-5 text-left">
+                                            <h3 className="font-bold text-primary dark:text-primary-light mb-3 flex items-center gap-2">
+                                                <BookMarked className="w-4 h-4" />
+                                                Explanation of the Hadith
+                                            </h3>
+                                            <p className="text-sm md:text-base text-neutral-dark/80 dark:text-neutral-light/80 leading-relaxed">
+                                                {content.tafseer}
+                                            </p>
+                                        </div>
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>
