@@ -541,7 +541,7 @@ function AdminPageInner() {
                                                     <>
                                                         <div>
                                                             <label className="text-xs font-semibold opacity-60">Arabic</label>
-                                                            <textarea value={newEntryData.ayah.arabic || ""} onChange={(e) => handleNewEntryChange("ayah", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic text-lg" dir="rtl" placeholder="Arabic text..." />
+                                                            <textarea value={newEntryData.ayah.arabic || ""} onChange={(e) => handleNewEntryChange("ayah", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic" dir="rtl" placeholder="Arabic text..." />
                                                         </div>
                                                         <div>
                                                             <label className="text-xs font-semibold opacity-60">English</label>
@@ -565,7 +565,7 @@ function AdminPageInner() {
                                                     <>
                                                         <div>
                                                             <label className="text-xs font-semibold opacity-60">Arabic</label>
-                                                            <textarea value={newEntryData.hadith.arabic || ""} onChange={(e) => handleNewEntryChange("hadith", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic text-lg" dir="rtl" placeholder="Arabic text..." />
+                                                            <textarea value={newEntryData.hadith.arabic || ""} onChange={(e) => handleNewEntryChange("hadith", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic" dir="rtl" placeholder="Arabic text..." />
                                                         </div>
                                                         <div>
                                                             <label className="text-xs font-semibold opacity-60">English</label>
@@ -589,7 +589,7 @@ function AdminPageInner() {
                                                     <>
                                                         <div>
                                                             <label className="text-xs font-semibold opacity-60">Arabic</label>
-                                                            <textarea value={newEntryData.dua.arabic || ""} onChange={(e) => handleNewEntryChange("dua", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic text-lg" dir="rtl" placeholder="Arabic dua..." />
+                                                            <textarea value={newEntryData.dua.arabic || ""} onChange={(e) => handleNewEntryChange("dua", "arabic", e.target.value)} className="w-full p-2 mt-1 bg-neutral-light/20 dark:bg-black/20 border border-primary/10 rounded-lg text-sm focus:ring-2 focus:ring-primary/40 min-h-[60px] text-right font-arabic" dir="rtl" placeholder="Arabic dua..." />
                                                         </div>
                                                         <div>
                                                             <label className="text-xs font-semibold opacity-60">English</label>
