@@ -79,12 +79,12 @@ export default function RootLayout({
                 )}
                 <AuthProvider>
                     <ThemeProvider defaultTheme="system" storageKey="daily-reminder-theme">
-                    <Header />
-                    <main className="flex-grow flex flex-col">
-                        {children}
-                    </main>
-                    <Footer />
-                </ThemeProvider>
+                        <Header />
+                        <main className="flex-grow flex flex-col">
+                            {children}
+                        </main>
+                        <Footer />
+                    </ThemeProvider>
                 </AuthProvider>
             </body>
         </html>
