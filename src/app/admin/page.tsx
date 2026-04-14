@@ -1206,9 +1206,18 @@ function AdminSection({ title, icon, type, data, onSave, onChange, saving, field
 }
 
 function AdminPageWrapper() {
+    const [isMounted, setIsMounted] = useState(false);
     const searchParams = useSearchParams();
-    const initialTab = searchParams.get("tab") || "overview";
     
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
+    
+    if (!isMounted) {
+        return <div className="flex-grow flex items-center justify-center p-8"><RefreshCw className="w-8 h-8 animate-spin text-primary" /></div>;
+    }
+    
+    const initialTab = searchParams.get("tab") || "overview";
     return <AdminPageInner initialTab={initialTab} />;
 }
 
