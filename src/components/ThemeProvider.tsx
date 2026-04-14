@@ -1,11 +1,11 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 type Theme = "dark" | "light" | "system";
 
 type ThemeProviderProps = {
-    children: React.ReactNode;
+    children: ReactNode;
     defaultTheme?: Theme;
     storageKey?: string;
 };
@@ -29,9 +29,11 @@ export function ThemeProvider({
     ...props
 }: ThemeProviderProps) {
     const [theme, setTheme] = useState<Theme>(defaultTheme);
+    const [mounted, setMounted] = useState(false);
 
     // Restore persisted theme from localStorage on first mount
     useEffect(() => {
+        setMounted(true);
         try {
             const stored = localStorage.getItem(storageKey) as Theme | null;
             if (stored && ['light', 'dark', 'system'].includes(stored)) {
@@ -43,6 +45,8 @@ export function ThemeProvider({
     }, [storageKey]);
 
     useEffect(() => {
+        if (!mounted) return;
+        
         const root = window.document.documentElement;
 
         root.classList.remove("light", "dark");
@@ -58,7 +62,7 @@ export function ThemeProvider({
         }
 
         root.classList.add(theme);
-    }, [theme]);
+    }, [theme, mounted]);
 
     const value = {
         theme,
