@@ -102,10 +102,10 @@ interface FinanceData {
     };
 }
 
-function AdminPageInner({ initialTab }: { initialTab: string }) {
+function AdminPageInner() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [activeTab, setActiveTab] = useState(initialTab);
+    const searchParams = useSearchParams();
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState<ContentType | null>(null);
@@ -150,11 +150,6 @@ function AdminPageInner({ initialTab }: { initialTab: string }) {
             Promise.all([fetchContent(), fetchStats(), fetchFinance(1), fetchEntryCounts()]).finally(() => setLoading(false));
         }
     }, [status, session]);
-
-    const handleTabChange = (tabId: string) => {
-        setActiveTab(tabId);
-        router.push(`/admin?tab=${tabId}`);
-    };
 
     const fetchContent = async () => {
         try {
@@ -353,6 +348,9 @@ function AdminPageInner({ initialTab }: { initialTab: string }) {
         { id: "posts", label: "Manage Posts", icon: Newspaper },
         { id: "finance", label: "Finance", icon: Wallet },
     ];
+    const tabParam = searchParams.get("tab");
+    const activeTab = tabs.some((tab) => tab.id === tabParam) ? tabParam! : "overview";
+    const userName = typeof session?.user?.name === "string" ? session.user.name : "Admin";
 
     return (
         <div className="flex-grow bg-neutral-light/30 dark:bg-black/10 py-8 px-4 md:px-8">
@@ -365,7 +363,7 @@ function AdminPageInner({ initialTab }: { initialTab: string }) {
                             Admin Dashboard
                         </h1>
                         <p className="text-neutral-dark/70 dark:text-neutral-light/70 mt-1 text-sm">
-                            Welcome back, {session?.user?.name}
+                            Welcome back, {userName}
                         </p>
                     </div>
                     <Link
@@ -380,9 +378,9 @@ function AdminPageInner({ initialTab }: { initialTab: string }) {
                 {/* Tabs */}
                 <div className="flex gap-1 bg-white dark:bg-neutral-dark rounded-xl p-1 border border-primary/10 overflow-x-auto">
                     {tabs.map(({ id, label, icon: Icon }) => (
-                        <button
+                        <Link
                             key={id}
-                            onClick={() => handleTabChange(id)}
+                            href={`/admin?tab=${id}`}
                             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${
                                 activeTab === id
                                     ? "bg-primary text-white shadow-sm"
@@ -391,7 +389,7 @@ function AdminPageInner({ initialTab }: { initialTab: string }) {
                         >
                             <Icon className="w-4 h-4" />
                             {label}
-                        </button>
+                        </Link>
                     ))}
                 </div>
 
@@ -1205,26 +1203,10 @@ function AdminSection({ title, icon, type, data, onSave, onChange, saving, field
     );
 }
 
-function AdminPageWrapper() {
-    const [isMounted, setIsMounted] = useState(false);
-    const searchParams = useSearchParams();
-    
-    useEffect(() => {
-        setIsMounted(true);
-    }, []);
-    
-    if (!isMounted) {
-        return <div className="flex-grow flex items-center justify-center p-8"><RefreshCw className="w-8 h-8 animate-spin text-primary" /></div>;
-    }
-    
-    const initialTab = searchParams.get("tab") || "overview";
-    return <AdminPageInner initialTab={initialTab} />;
-}
-
 export default function AdminPage() {
     return (
         <Suspense fallback={<div className="flex-grow flex items-center justify-center p-8"><RefreshCw className="w-8 h-8 animate-spin text-primary" /></div>}>
-            <AdminPageWrapper />
+            <AdminPageInner />
         </Suspense>
     );
 }
