@@ -105,13 +105,8 @@ interface FinanceData {
 function AdminPageInner() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    let searchParams;
-    try {
-        searchParams = useSearchParams();
-    } catch {
-        return <div className="flex-grow flex items-center justify-center p-8">Error loading admin dashboard.</div>;
-    }
-    const activeTab = searchParams?.get("tab") || "overview";
+    const searchParams = useSearchParams();
+    const activeTab = searchParams.get("tab") || "overview";
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState<ContentType | null>(null);
@@ -1209,11 +1204,7 @@ function AdminSection({ title, icon, type, data, onSave, onChange, saving, field
 export default function AdminPage() {
     return (
         <Suspense fallback={<div className="flex-grow flex items-center justify-center p-8"><RefreshCw className="w-8 h-8 animate-spin text-primary" /></div>}>
-            <AdminPageInnerWrapper />
+            <AdminPageInner />
         </Suspense>
     );
-}
-
-function AdminPageInnerWrapper() {
-    return <AdminPageInner />;
 }
