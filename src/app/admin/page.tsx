@@ -102,11 +102,10 @@ interface FinanceData {
     };
 }
 
-function AdminPageInner() {
+function AdminPageInner({ initialTab }: { initialTab: string }) {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const activeTab = searchParams.get("tab") || "overview";
+    const [activeTab, setActiveTab] = useState(initialTab);
 
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState<ContentType | null>(null);
@@ -151,6 +150,11 @@ function AdminPageInner() {
             Promise.all([fetchContent(), fetchStats(), fetchFinance(1), fetchEntryCounts()]).finally(() => setLoading(false));
         }
     }, [status, session]);
+
+    const handleTabChange = (tabId: string) => {
+        setActiveTab(tabId);
+        router.push(`/admin?tab=${tabId}`);
+    };
 
     const fetchContent = async () => {
         try {
@@ -376,9 +380,9 @@ function AdminPageInner() {
                 {/* Tabs */}
                 <div className="flex gap-1 bg-white dark:bg-neutral-dark rounded-xl p-1 border border-primary/10 overflow-x-auto">
                     {tabs.map(({ id, label, icon: Icon }) => (
-                        <Link
+                        <button
                             key={id}
-                            href={`/admin?tab=${id}`}
+                            onClick={() => handleTabChange(id)}
                             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold whitespace-nowrap transition-all ${
                                 activeTab === id
                                     ? "bg-primary text-white shadow-sm"
@@ -387,7 +391,7 @@ function AdminPageInner() {
                         >
                             <Icon className="w-4 h-4" />
                             {label}
-                        </Link>
+                        </button>
                     ))}
                 </div>
 
@@ -1201,10 +1205,17 @@ function AdminSection({ title, icon, type, data, onSave, onChange, saving, field
     );
 }
 
+function AdminPageWrapper() {
+    const searchParams = useSearchParams();
+    const initialTab = searchParams.get("tab") || "overview";
+    
+    return <AdminPageInner initialTab={initialTab} />;
+}
+
 export default function AdminPage() {
     return (
         <Suspense fallback={<div className="flex-grow flex items-center justify-center p-8"><RefreshCw className="w-8 h-8 animate-spin text-primary" /></div>}>
-            <AdminPageInner />
+            <AdminPageWrapper />
         </Suspense>
     );
 }
