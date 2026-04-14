@@ -36,7 +36,8 @@ export async function GET() {
             totalPosts,
             publishedPosts,
             draftPosts,
-            contentItems,
+            contentItems: contentItems.total,
+            contentItemCounts: contentItems,
             recentPosts,
         });
     } catch (error) {
