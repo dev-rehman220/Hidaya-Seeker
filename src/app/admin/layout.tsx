@@ -52,6 +52,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const pathname = usePathname();
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const userName = typeof session?.user?.name === "string" ? session.user.name : "Admin";
+    const userInitial = userName.charAt(0).toUpperCase() || "A";
 
     useEffect(() => {
         if (status === "unauthenticated") router.push("/login");
@@ -142,10 +144,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <div className="space-y-2">
                         <div className="flex items-center gap-3 px-2 py-1">
                             <div className="w-8 h-8 rounded-full bg-secondary/80 flex items-center justify-center text-sm font-bold shrink-0 text-primary">
-                                {session?.user?.name?.[0]?.toUpperCase() || "A"}
+                                {userInitial}
                             </div>
                             <div className="min-w-0 flex-1">
-                                <p className="text-xs font-semibold truncate text-white">{session?.user?.name}</p>
+                                <p className="text-xs font-semibold truncate text-white">{userName}</p>
                                 <p className="text-[10px] text-white/40">Administrator</p>
                             </div>
                         </div>
